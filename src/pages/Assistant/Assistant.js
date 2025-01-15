@@ -86,7 +86,7 @@ function Assistant() {
         appointment.mobileno.toLowerCase().includes(query) ||
         appointment.email.toLowerCase().includes(query) ||
         appointment.username.toLowerCase().includes(query) ||
-        appointment.password.toLowerCase().includes(query) 
+        appointment.password.toLowerCase().includes(query)
       );
     });
 
@@ -156,7 +156,7 @@ function Assistant() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <a href="appointments.html">Technician</a>
+                      <Link to="/assistant">Technician</Link>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
@@ -195,13 +195,14 @@ function Assistant() {
                                 </form>
                               </div>
                               <div class="add-group">
-                                <a
-                                  href="add-appointment.html"
+                                <Link
+                                  to="/addassistant"
+                                  style={{ textDecoration: "none" }}
                                   class="btn btn-primary add-pluss ms-2"
                                 >
                                   <img src="assets/img/icons/plus.svg" alt="" />
-                                </a>
-                                <a
+                                </Link>
+                                {/* <a
                                   href="javascript:;"
                                   class="btn btn-primary doctor-refresh ms-2"
                                 >
@@ -209,7 +210,7 @@ function Assistant() {
                                     src="assets/img/icons/re-fresh.svg"
                                     alt=""
                                   />
-                                </a>
+                                </a> */}
                               </div>
                             </div>
                           </div>
@@ -477,7 +478,7 @@ function Assistant() {
                                   padding: "12px 15px",
                                 }}
                               >
-                                {index + 1}
+                                {indexOfFirstAppointment + index + 1}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.name}
@@ -574,15 +575,30 @@ function Assistant() {
                       </table>
                       {/* Pagination Component */}
                       <div
-                        className="pagination"
+                        className="pagination-container"
                         style={{
                           display: "flex",
-                          justifyContent: "flex-end",
+                          justifyContent: "space-between",
                           alignItems: "center",
                           textAlign: "center",
                           marginTop: "20px",
+                          padding: "10px",
                         }}
                       >
+                        {/* Entry Range Display */}
+                        <div
+                          className="entry-range"
+                          style={{ fontSize: "14px", color: "#555" }}
+                        >
+                          {filteredAppointments.length === 0
+                            ? "No entries"
+                            : `${indexOfFirstAppointment + 1} - ${Math.min(
+                                indexOfLastAppointment,
+                                filteredAppointments.length
+                              )} of ${filteredAppointments.length} entries`}
+                        </div>
+
+                        {/* Pagination Component */}
                         <Pagination
                           count={totalPages}
                           page={currentPage}
@@ -851,6 +867,26 @@ function Assistant() {
               </div>
             </div>
           </div>
+
+          <footer
+            style={{
+              marginTop: "20px",
+              padding: "10px 20px",
+              backgroundColor: "#f1f1f1",
+              textAlign: "center",
+              fontSize: "14px",
+            }}
+          >
+            © {new Date().getFullYear()}{" "}
+            <a
+              href="https://sitsolutions.co.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              S IT Solutions Pvt. Ltd.
+            </a>{" "}
+            All Rights Reserved.
+          </footer>
         </div>
         <div id="delete_patient" class="modal fade delete-modal" role="dialog">
           <div class="modal-dialog modal-dialog-centered">

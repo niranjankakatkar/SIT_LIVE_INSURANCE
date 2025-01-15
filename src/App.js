@@ -23,6 +23,9 @@ import EditRole from "./pages/Role/EditRole";
 import Permission from "./pages/Role/Permission";
 import Profile from "./pages/Profile/Profile";
 import EditProfile from "./pages/Profile/EditProfile";
+import AppointmentReport from "./pages/Reports/AppointmentReport";
+import DiagnosticReport from "./pages/Reports/DiagnosticReport";
+import AssistantReport from "./pages/Reports/AssistantReport";
 function App() {
   return (
     <BrowserRouter>
@@ -56,6 +59,12 @@ function App() {
         <Route path="/Permission" element={<Permission />}></Route>
         <Route path="/Profile" element={<Profile />}></Route>
         <Route path="/edit-profile" element={<EditProfile />}></Route>
+        <Route
+          path="/appointmentreport"
+          element={<AppointmentReport />}
+        ></Route>
+        <Route path="/diagnosticreport" element={<DiagnosticReport />}></Route>
+        <Route path="/assistantreport" element={<AssistantReport />}></Route>
       </Routes>
     </BrowserRouter>
   );

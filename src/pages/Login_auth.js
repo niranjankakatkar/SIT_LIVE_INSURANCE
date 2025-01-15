@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Slide, toast } from "react-toastify";
 
 function Login_auth() {
@@ -14,7 +14,7 @@ function Login_auth() {
     console.log("Password:", password);
 
     try {
-      const result = await axios.post("http://3.109.174.127:3005/checkLogin" , {
+      const result = await axios.post("http://3.109.174.127:3005/checkLogin", {
         username,
         password,
       });
@@ -58,7 +58,7 @@ function Login_auth() {
       }
     } catch (err) {
       console.error("Login Error:", err);
-      toast.error("Failed to login. Please try again.", {
+      toast.error("Provide valid email and password. Please try again.", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
@@ -90,9 +90,9 @@ function Login_auth() {
                   <div className="login-right">
                     <div className="login-right-wrap">
                       <div className="account-logo">
-                        <a href="index.html">
+                        <Link to="/">
                           <img src="assets/img/login-logo.png" alt="" />
-                        </a>
+                        </Link>
                       </div>
                       <h2>Login</h2>
 
@@ -130,7 +130,7 @@ function Login_auth() {
                               <span className="checkmark"></span>
                             </label>
                           </div>
-                          <a href="forgot-password.html">Password?</a>
+                          {/* <a href="forgot-password.html">Password?</a> */}
                         </div>
                         <div className="input-block login-btn">
                           <button

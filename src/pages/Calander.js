@@ -149,7 +149,7 @@ const CalendarComponent = () => {
             <h2 style={{ margin: 0, color: "#4caf50" }}>📅 My Calendar</h2>
             <div style={{ display: "flex", gap: "15px" }}>
               <label>
-                <strong>Month:</strong>
+                <strong>Month: </strong>
                 <select
                   value={selectedMonth}
                   onChange={(e) => {
@@ -172,7 +172,7 @@ const CalendarComponent = () => {
                 </select>
               </label>
               <label>
-                <strong>Year:</strong>
+                <strong>Year: </strong>
                 <select
                   value={selectedYear}
                   onChange={(e) => {
@@ -188,8 +188,8 @@ const CalendarComponent = () => {
                   }}
                 >
                   {Array.from(
-                    { length: 10 },
-                    (_, i) => new Date().getFullYear() - 5 + i
+                    { length: 5 },
+                    (_, i) => new Date().getFullYear() - 2 + i
                   ).map((year) => (
                     <option key={year} value={year}>
                       {year}
@@ -207,6 +207,7 @@ const CalendarComponent = () => {
               borderRadius: "12px",
               overflow: "hidden",
               boxShadow: "0 4px 15px rgba(0, 0, 0, 0.15)",
+              padding: "10px",
             }}
           >
             <Calendar

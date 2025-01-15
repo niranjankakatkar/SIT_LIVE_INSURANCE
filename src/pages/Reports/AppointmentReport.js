@@ -21,30 +21,27 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
-function Laboratory() {
+function Appointment() {
   const [appointment, setAppointmentList] = useState([]);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showAppointmentDetails, setShowAppointmentDetails] = useState(false); // Track showing details
   const [currentPage, setCurrentPage] = useState(1);
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Track delete modal
-  const [deleteId, setDeleteId] = useState(null);
-  const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Track the search query
-
+  const [pincode, setPincode] = useState(""); // Track the search query
   const itemsPerPage = 5; // Number of items per page
 
   useEffect(() => {
     const getAppointmentList = async () => {
-      const res = await fetch("http://3.109.174.127:3005/getAllLaboratories");
+      const res = await fetch("http://3.109.174.127:3005/getallappointment");
       const getData = await res.json();
       setAppointmentList(getData);
-      setFilteredAppointments(getData);
+      setFilteredAppointments(getData); // Initialize filtered appointments
     };
     getAppointmentList();
   }, []);
 
   useEffect(() => {
-    // Ensure modal initializes correctly
+    // Ensure modal initializes correctlya
     const modal = document.getElementById("viewAppointmentModal");
     if (modal) {
       const modalInstance = new window.bootstrap.Modal(modal);
@@ -75,31 +72,19 @@ function Laboratory() {
     setShowAppointmentDetails(false);
   };
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
+  // Function to handle pincode input change
+  const handlePincodeChange = (event) => {
+    setPincode(event.target.value);
+  };
 
-    // Filter appointments based on search query
-    const filtered = appointment.filter((appointment) => {
-      return (
-        appointment.title.toLowerCase().includes(query) ||
-        appointment.country.toLowerCase().includes(query) ||
-        appointment.state.toLowerCase().includes(query) ||
-        appointment.city.toLowerCase().includes(query) ||
-        appointment.pincode.toLowerCase().includes(query) ||
-        appointment.address.toLowerCase().includes(query) ||
-        appointment.state.toLowerCase().includes(query) ||
-        appointment.name.toLowerCase().includes(query) ||
-        appointment.mobileno.toLowerCase().includes(query) ||
-        appointment.email.toLowerCase().includes(query) ||
-        appointment.username.toLowerCase().includes(query) ||
-        appointment.client_name.toLowerCase().includes(query) ||
-        appointment.client_email.toLowerCase().includes(query) ||
-        appointment.client_address.toLowerCase().includes(query)
+  const fetchAppointmentsByPincode = async () => {
+    if (pincode) {
+      const res = await fetch(
+        `http://3.109.174.127:3005/getappointmentbypincode?pincode=${pincode}`
       );
-    });
-
-    setFilteredAppointments(filtered);
+      const data = await res.json();
+      setFilteredAppointments(data);
+    }
   };
 
   // Pagination logic
@@ -118,42 +103,6 @@ function Laboratory() {
   // Calculate total pages
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
 
-  // Handle Delete Confirmation
-  const handleDeleteClick = (id) => {
-    setDeleteId(id);
-    setShowDeleteModal(true);
-  };
-
-  // Confirm Deletion
-  const confirmDelete = async () => {
-    try {
-      const res = await fetch(
-        `http://3.109.174.127:3005/deleteLaboratory/${deleteId}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (res.ok) {
-        setAppointmentList((prev) =>
-          prev.filter((item) => item.lab_id !== deleteId)
-        );
-        setShowDeleteModal(false);
-        setDeleteId(null);
-        console.log("Laboratory deleted successfully");
-      } else {
-        console.error("Failed to delete assistant");
-      }
-    } catch (error) {
-      console.error("Error deleting assistant:", error);
-    }
-  };
-
-  // Cancel Deletion
-  const cancelDelete = () => {
-    setShowDeleteModal(false);
-    setDeleteId(null);
-  };
-
   return (
     <div>
       <div class="main-wrapper">
@@ -166,14 +115,12 @@ function Laboratory() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <Link to="/laboratory">Centres</Link>
+                      <Link to="/appointmentreport">Appointment</Link>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
                     </li>
-                    <li class="breadcrumb-item active">
-                      Diagnoastic Centre List
-                    </li>
+                    <li class="breadcrumb-item active">Appointment List</li>
                   </ul>
                 </div>
               </div>
@@ -187,17 +134,18 @@ function Laboratory() {
                       <div class="row align-items-center">
                         <div class="col">
                           <div class="doctor-table-blk">
-                            <h3>Diagnoastic Centre</h3>
+                            <h3>Appointment</h3>
                             <div class="doctor-search-blk">
                               <div class="top-nav-search table-search-blk">
                                 <form>
                                   <input
                                     type="text"
                                     class="form-control"
-                                    placeholder="Search here"
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
+                                    placeholder="Enter Pincode"
+                                    value={pincode}
+                                    onChange={handlePincodeChange}
                                   />
+
                                   <a class="btn">
                                     <img
                                       src="assets/img/icons/search-normal.svg"
@@ -206,15 +154,16 @@ function Laboratory() {
                                   </a>
                                 </form>
                               </div>
+
                               <div class="add-group">
-                                <Link
-                                  to="/addLaboratory"
-                                  style={{ textDecoration: "none" }}
+                                <a
+                                  onClick={fetchAppointmentsByPincode}
+                                  //   href="add-appointment.html"
                                   class="btn btn-primary add-pluss ms-2"
                                 >
-                                  <img src="assets/img/icons/plus.svg" alt="" />
-                                </Link>
-                                {/* <a
+                                  Search
+                                </a>
+                                <a
                                   href="javascript:;"
                                   class="btn btn-primary doctor-refresh ms-2"
                                 >
@@ -222,7 +171,7 @@ function Laboratory() {
                                     src="assets/img/icons/re-fresh.svg"
                                     alt=""
                                   />
-                                </a> */}
+                                </a>
                               </div>
                             </div>
                           </div>
@@ -271,9 +220,10 @@ function Laboratory() {
                                   padding: "16px",
                                 }}
                               >
-                                <Typography variant="h6">Centres</Typography>
+                                <Typography variant="h6">
+                                  Appointments
+                                </Typography>
                               </DialogTitle>
-
                               <DialogContent sx={{ padding: "16px" }}>
                                 {/* Table to Show Appointment Details */}
                                 <Table>
@@ -287,7 +237,47 @@ function Laboratory() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Title
+                                        Appointment Time
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Client Name
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Medical Test Details
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Contact No
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Proposal No
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Address
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -321,13 +311,14 @@ function Laboratory() {
                                       >
                                         Pincode
                                       </TableCell>
+
                                       <TableCell
                                         sx={{
                                           fontWeight: "bold",
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Address
+                                        Insurance Name
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -335,63 +326,7 @@ function Laboratory() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Name
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Mobile No
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Email
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Username
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Password
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Client Name
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Client Email
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Client Address
+                                        TPA Details
                                       </TableCell>
                                     </TableRow>
                                   </TableHead>
@@ -399,7 +334,26 @@ function Laboratory() {
                                     {appointment.map((appointment) => (
                                       <TableRow key={appointment.id}>
                                         <TableCell>
-                                          {appointment.title}
+                                          {new Date(
+                                            appointment.time
+                                          ).toLocaleString("en-US", {
+                                            timeZone: "Asia/Kolkata",
+                                          })}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.name}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.treatment}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.mobileno}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.appointment_no}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.address}
                                         </TableCell>
                                         <TableCell>
                                           {appointment.country}
@@ -413,32 +367,12 @@ function Laboratory() {
                                         <TableCell>
                                           {appointment.pincode}
                                         </TableCell>
+
                                         <TableCell>
-                                          {appointment.address}
+                                          {appointment.insurance_name}
                                         </TableCell>
                                         <TableCell>
-                                          {appointment.name}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.mobileno}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.email}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.username}
-                                          <TableCell>
-                                            {appointment.password}
-                                          </TableCell>
-                                          <TableCell>
-                                            {appointment.client_name}
-                                          </TableCell>
-                                          <TableCell>
-                                            {appointment.client_email}
-                                          </TableCell>
-                                          <TableCell>
-                                            {appointment.client_address}
-                                          </TableCell>
+                                          {appointment.tpa_details}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -476,14 +410,14 @@ function Laboratory() {
                         padding: "10px",
                       }}
                     >
-                      <Link
-                        to="/addLaboratory"
+                      {/* <Link
+                        to="/addAppointment"
                         style={{ textDecoration: "none" }}
                       >
                         <Button variant="contained" color="primary">
-                          Add Centre
+                          Add Appointment
                         </Button>
-                      </Link>
+                      </Link> */}
                     </div>
 
                     <div class="table-responsive">
@@ -513,7 +447,7 @@ function Laboratory() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Sr.No
+                              #
                             </th>
                             <th
                               style={{
@@ -522,7 +456,52 @@ function Laboratory() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Title
+                              Appointment Date
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Client Name
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Medical Test Details
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Contact No
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Proposal No
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Address
                             </th>
                             <th
                               style={{
@@ -560,6 +539,7 @@ function Laboratory() {
                             >
                               Pincode
                             </th>
+
                             <th
                               style={{
                                 fontWeight: "bold",
@@ -567,7 +547,7 @@ function Laboratory() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Address
+                              Insurance Name
                             </th>
                             <th
                               style={{
@@ -576,70 +556,7 @@ function Laboratory() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Name
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Mobile No
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Email
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Username
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Password
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Clinet Name
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Client Email
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Client Address
+                              TPA Details
                             </th>
                             <th
                               style={{
@@ -669,10 +586,37 @@ function Laboratory() {
                                   padding: "12px 15px",
                                 }}
                               >
-                                {indexOfFirstAppointment + index + 1}
+                               {indexOfFirstAppointment + index + 1}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.title}
+                                {new Date(getcate.time).toLocaleString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                    hour12: true,
+                                    timeZone: "Asia/Kolkata",
+                                  }
+                                )}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.name}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.treatment}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.mobileno}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.appointment_no}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.address}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.country}
@@ -686,32 +630,12 @@ function Laboratory() {
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.pincode}
                               </td>
+
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.address}
+                                {getcate.insurance_name}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.name}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.mobileno}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.email}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.username}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.password}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.client_name}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.client_email}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.client_address}
+                                {getcate.tpa_details}
                               </td>
                               <td
                                 className="text-center"
@@ -750,7 +674,7 @@ function Laboratory() {
                                       View
                                     </a>
                                     <Link
-                                      to={`/edit-laboratory/${getcate.lab_id}`}
+                                      to={`/edit-appointment/${getcate.appointment_id}`}
                                       className="dropdown-item"
                                       style={{
                                         display: "flex",
@@ -767,16 +691,13 @@ function Laboratory() {
 
                                     <a
                                       className="dropdown-item"
-                                      // href="#"
-                                      // data-bs-toggle="modal"
-                                      // data-bs-target="#delete_patient"
+                                      href="#"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#delete_patient"
                                       style={{
                                         display: "flex",
                                         alignItems: "center",
                                       }}
-                                      onClick={() =>
-                                        handleDeleteClick(getcate.lab_id)
-                                      }
                                     >
                                       <DeleteIcon
                                         style={{ marginRight: "8px" }}
@@ -829,22 +750,6 @@ function Laboratory() {
               </div>
             </div>
           </div>
-
-          {/* Delete Confirmation Modal */}
-          <Dialog open={showDeleteModal} onClose={cancelDelete}>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogContent>
-              Are you sure you want to delete this Assistant?
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={cancelDelete} color="secondary">
-                Cancel
-              </Button>
-              <Button onClick={confirmDelete} color="error">
-                Delete
-              </Button>
-            </DialogActions>
-          </Dialog>
 
           <div class="notification-box">
             <div class="msg-sidebar notifications msg-noti">
@@ -1104,6 +1009,7 @@ function Laboratory() {
             All Rights Reserved.
           </footer>
         </div>
+
         <div id="delete_patient" class="modal fade delete-modal" role="dialog">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1165,7 +1071,7 @@ function Laboratory() {
                   }}
                 >
                   <i className="fa-solid fa-calendar-check me-2"></i>
-                  laboratories Details
+                  Appointment Details
                 </h5>
                 <button
                   type="button"
@@ -1195,8 +1101,8 @@ function Laboratory() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>laboratory No:</strong>{" "}
-                          {selectedAppointment.lab_id}
+                          <strong>Appointment No:</strong>{" "}
+                          {selectedAppointment.appointment_no}
                         </p>
                       </div>
                     </div>
@@ -1209,7 +1115,75 @@ function Laboratory() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Title:</strong> {selectedAppointment.title}
+                          <strong>Date:</strong>{" "}
+                          {new Date(selectedAppointment.time).toLocaleString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                              hour12: true,
+                              timeZone: "Asia/Kolkata",
+                            }
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Name:</strong> {selectedAppointment.name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Mobile:</strong>{" "}
+                          {selectedAppointment.mobileno}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Test Details:</strong>{" "}
+                          {selectedAppointment.treatment}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Address:</strong>{" "}
+                          {selectedAppointment.address}
                         </p>
                       </div>
                     </div>
@@ -1240,7 +1214,7 @@ function Laboratory() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-12">
+                    <div className="col-md-6">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1253,7 +1227,7 @@ function Laboratory() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-12">
+                    <div className="col-md-6">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1267,7 +1241,8 @@ function Laboratory() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-12">
+
+                    <div className="col-md-6">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1276,12 +1251,12 @@ function Laboratory() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Address:</strong>{" "}
-                          {selectedAppointment.address}
+                          <strong>Insurance Name:</strong>{" "}
+                          {selectedAppointment.insurance_name}
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-12">
+                    <div className="col-md-6">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1290,104 +1265,8 @@ function Laboratory() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Name:</strong> {selectedAppointment.address}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Mobile No:</strong>{" "}
-                          {selectedAppointment.mobileno}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Email:</strong> {selectedAppointment.email}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Username:</strong>{" "}
-                          {selectedAppointment.username}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Password:</strong>{" "}
-                          {selectedAppointment.password}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Clinet Name:</strong>{" "}
-                          {selectedAppointment.client_name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>client Email:</strong>{" "}
-                          {selectedAppointment.password}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Client Address:</strong>{" "}
-                          {selectedAppointment.password}
+                          <strong>TPA Details:</strong>{" "}
+                          {selectedAppointment.tpa_details}
                         </p>
                       </div>
                     </div>
@@ -1456,4 +1335,4 @@ function Laboratory() {
   );
 }
 
-export default Laboratory;
+export default Appointment;

@@ -1,10 +1,27 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function NavBar() {
-  // Retrieve user role from sessionStorage
   const userRole = sessionStorage.getItem("post");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [isReportsOpen, setIsReportsOpen] = useState(false);
+
+  useEffect(() => {
+    const reportPages = [
+      "/appointmentreport",
+      "/diagnosticreport",
+      "/assistantreport",
+    ];
+    setIsReportsOpen(reportPages.includes(location.pathname));
+  }, [location.pathname]);
+
+  const toggleReports = () => {
+    setIsReportsOpen((prev) => !prev);
+  };
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div>
@@ -50,10 +67,18 @@ function NavBar() {
           <div id="sidebar-menu" className="sidebar-menu">
             <ul>
               <li className="menu-title">Main {userRole}</li>
-              {/* Admin Role */}
+
               {userRole === "Admin" && (
                 <>
-                  <li className="submenu">
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/Dashboard") ? "#f0f0f0" : "",
+                      borderLeft: isActive("/Dashboard")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
                     <Link to="/Dashboard">
                       <span className="menu-side">
                         <img src="assets/img/icons/menu-icon-01.svg" alt="" />
@@ -61,7 +86,17 @@ function NavBar() {
                       <span> Dashboard </span>{" "}
                     </Link>
                   </li>
-                  <li className="submenu">
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/Appointment")
+                        ? "#f0f0f0"
+                        : "",
+                      borderLeft: isActive("/Appointment")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
                     <Link to="/Appointment">
                       <span className="menu-side">
                         <img src="assets/img/icons/menu-icon-04.svg" alt="" />
@@ -69,7 +104,15 @@ function NavBar() {
                       <span> Appointments </span>
                     </Link>
                   </li>
-                  <li className="submenu">
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/laboratory") ? "#f0f0f0" : "",
+                      borderLeft: isActive("/laboratory")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
                     <Link to="/laboratory">
                       <span className="menu-side">
                         <img src="assets/img/icons/menu-icon-04.svg" alt="" />
@@ -77,7 +120,15 @@ function NavBar() {
                       <span> Diagnostic Centre </span>
                     </Link>
                   </li>
-                  <li className="submenu">
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/assistant") ? "#f0f0f0" : "",
+                      borderLeft: isActive("/assistant")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
                     <Link to="/assistant">
                       <span className="menu-side">
                         <img src="assets/img/icons/menu-icon-04.svg" alt="" />
@@ -86,6 +137,61 @@ function NavBar() {
                     </Link>
                   </li>
                   <li className="submenu">
+                    <Link to="#" onClick={toggleReports}>
+                      <span className="menu-side">
+                        <img src="assets/img/icons/menu-icon-06.svg" alt="" />
+                      </span>
+                      <span> Reports </span>
+                    </Link>
+                    <ul
+                      className="submenu-list"
+                      style={{
+                        display: isReportsOpen ? "block" : "none",
+                        paddingLeft: "20px",
+                        listStyle: "none",
+                      }}
+                    >
+                      <li
+                        style={{
+                          margin: "5px 0",
+                          backgroundColor: isActive("/appointmentreport")
+                            ? "#f0f0f0"
+                            : "",
+                        }}
+                      >
+                        <Link to="/appointmentreport">Appointment Report</Link>
+                      </li>
+                      <li
+                        style={{
+                          margin: "5px 0",
+                          backgroundColor: isActive("/diagnosticreport")
+                            ? "#f0f0f0"
+                            : "",
+                        }}
+                      >
+                        <Link to="/diagnosticreport">Diagnostic Report</Link>
+                      </li>
+                      <li
+                        style={{
+                          margin: "5px 0",
+                          backgroundColor: isActive("/assistantreport")
+                            ? "#f0f0f0"
+                            : "",
+                        }}
+                      >
+                        <Link to="/assistantreport">Technician Report</Link>
+                      </li>
+                    </ul>
+                  </li>
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/calendar") ? "#f0f0f0" : "",
+                      borderLeft: isActive("/calendar")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
                     <Link to="/calendar">
                       <span className="menu-side">
                         <img src="assets/img/icons/menu-icon-05.svg" alt="" />
@@ -96,10 +202,17 @@ function NavBar() {
                 </>
               )}
 
-              {/* Laboratory Role */}
               {userRole === "laboratory" && (
                 <>
-                  <li className="submenu">
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/Dashboard") ? "#f0f0f0" : "",
+                      borderLeft: isActive("/Dashboard")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
                     <Link to="/Dashboard">
                       <span className="menu-side">
                         <img src="assets/img/icons/menu-icon-01.svg" alt="" />
@@ -107,7 +220,15 @@ function NavBar() {
                       <span> Dashboard </span>{" "}
                     </Link>
                   </li>
-                  <li className="submenu">
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/assistant") ? "#f0f0f0" : "",
+                      borderLeft: isActive("/assistant")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
                     <Link to="/assistant">
                       <span className="menu-side">
                         <img src="assets/img/icons/menu-icon-04.svg" alt="" />
@@ -120,7 +241,13 @@ function NavBar() {
             </ul>
 
             <div className="logout-btn">
-              <Link to="/">
+              <Link
+                to="/"
+                style={{
+                  backgroundColor: isActive("/") ? "#f0f0f0" : "",
+                  borderLeft: isActive("/") ? "5px solid #007bff" : "",
+                }}
+              >
                 <span className="menu-side">
                   <img src="assets/img/icons/logout.svg" alt="" />
                 </span>{" "}

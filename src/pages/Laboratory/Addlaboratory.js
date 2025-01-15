@@ -238,7 +238,7 @@ const AddLaboratory = () => {
 
             {/* Client Information Section */}
             <h3 style={{ width: "100%", marginTop: "20px" }}>
-              Client Information
+              Owner Information
             </h3>
             {[
               { name: "client_name", type: "text", placeholder: "Client Name" },

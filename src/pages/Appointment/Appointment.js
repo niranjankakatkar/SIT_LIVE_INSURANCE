@@ -41,7 +41,7 @@ function Appointment() {
   }, []);
 
   useEffect(() => {
-    // Ensure modal initializes correctly
+    // Ensure modal initializes correctlya
     const modal = document.getElementById("viewAppointmentModal");
     if (modal) {
       const modalInstance = new window.bootstrap.Modal(modal);
@@ -50,6 +50,27 @@ function Appointment() {
       });
     }
   }, []);
+
+  const handleViewDetails = (appointment) => {
+    setSelectedAppointment(appointment);
+    const modal = document.getElementById("viewAppointmentModal");
+    if (modal) {
+      const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modal);
+      modalInstance.show();
+    }
+  };
+
+  const handleDownloadExcel = () => {
+    window.open("http://3.109.174.127:3005/downloadAppointments", "_blank");
+  };
+
+  const handleImageClick = () => {
+    setShowAppointmentDetails(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowAppointmentDetails(false);
+  };
 
   // Handle search input change
   const handleSearchChange = (event) => {
@@ -76,25 +97,21 @@ function Appointment() {
     setFilteredAppointments(filtered);
   };
 
-  const handleViewDetails = (appointment) => {
-    setSelectedAppointment(appointment);
-    const modal = document.getElementById("viewAppointmentModal");
-    if (modal) {
-      const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modal);
-      modalInstance.show();
-    }
-  };
+  const highlightText = (text, query) => {
+    if (!query) return text;
 
-  const handleDownloadExcel = () => {
-    window.open("http://3.109.174.127:3005/downloadAppointments", "_blank");
-  };
+    const regex = new RegExp(`(${query})`, "gi"); // Global, case-insensitive match
+    const parts = text.split(regex);
 
-  const handleImageClick = () => {
-    setShowAppointmentDetails(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowAppointmentDetails(false);
+    return parts.map((part, index) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <span key={index} className="highlight">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
   };
 
   // Pagination logic
@@ -125,7 +142,7 @@ function Appointment() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <a href="appointments.html">Appointment</a>
+                      <a href="/Appointment">Appointment</a>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
@@ -164,13 +181,14 @@ function Appointment() {
                                 </form>
                               </div>
                               <div class="add-group">
-                                <a
-                                  href="add-appointment.html"
+                                <Link
+                                  to="/addAppointment"
+                                  style={{ textDecoration: "none" }}
                                   class="btn btn-primary add-pluss ms-2"
                                 >
                                   <img src="assets/img/icons/plus.svg" alt="" />
-                                </a>
-                                <a
+                                </Link>
+                                {/* <a
                                   href="javascript:;"
                                   class="btn btn-primary doctor-refresh ms-2"
                                 >
@@ -178,7 +196,7 @@ function Appointment() {
                                     src="assets/img/icons/re-fresh.svg"
                                     alt=""
                                   />
-                                </a>
+                                </a> */}
                               </div>
                             </div>
                           </div>
@@ -593,7 +611,7 @@ function Appointment() {
                                   padding: "12px 15px",
                                 }}
                               >
-                                {index + 1}
+                                {indexOfFirstAppointment + index + 1}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {new Date(getcate.time).toLocaleString(
@@ -720,15 +738,30 @@ function Appointment() {
                       </table>
                       {/* Pagination Component */}
                       <div
-                        className="pagination"
+                        className="pagination-container"
                         style={{
                           display: "flex",
-                          justifyContent: "flex-end",
+                          justifyContent: "space-between",
                           alignItems: "center",
                           textAlign: "center",
                           marginTop: "20px",
+                          padding:'10px'
                         }}
                       >
+                        {/* Entry Range Display */}
+                        <div
+                          className="entry-range"
+                          style={{ fontSize: "14px", color: "#555" }}
+                        >
+                          {filteredAppointments.length === 0
+                            ? "No entries"
+                            : `${indexOfFirstAppointment + 1} - ${Math.min(
+                                indexOfLastAppointment,
+                                filteredAppointments.length
+                              )} of ${filteredAppointments.length} entries`}
+                        </div>
+
+                        {/* Pagination Component */}
                         <Pagination
                           count={totalPages}
                           page={currentPage}

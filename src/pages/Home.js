@@ -96,7 +96,7 @@ function Home() {
                 <div className="col-sm-12">
                   <ul className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <Link to="index.html">Dashboard </Link>
+                      <Link to="/Dashboard">Dashboard </Link>
                     </li>
                     <li className="breadcrumb-item">
                       <i className="feather-chevron-right"></i>

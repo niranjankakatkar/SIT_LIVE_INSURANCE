@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
-function Laboratory() {
+function Assistant() {
   const [appointment, setAppointmentList] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showAppointmentDetails, setShowAppointmentDetails] = useState(false); // Track showing details
@@ -29,13 +29,13 @@ function Laboratory() {
   const [showDeleteModal, setShowDeleteModal] = useState(false); // Track delete modal
   const [deleteId, setDeleteId] = useState(null);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Track the search query
+  const [pincode, setPincode] = useState(""); // Track the search query
 
   const itemsPerPage = 5; // Number of items per page
 
   useEffect(() => {
     const getAppointmentList = async () => {
-      const res = await fetch("http://3.109.174.127:3005/getAllLaboratories");
+      const res = await fetch("http://3.109.174.127:3005/getAllassistant");
       const getData = await res.json();
       setAppointmentList(getData);
       setFilteredAppointments(getData);
@@ -75,31 +75,19 @@ function Laboratory() {
     setShowAppointmentDetails(false);
   };
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
+  // Function to handle pincode input change
+  const handlePincodeChange = (event) => {
+    setPincode(event.target.value);
+  };
 
-    // Filter appointments based on search query
-    const filtered = appointment.filter((appointment) => {
-      return (
-        appointment.title.toLowerCase().includes(query) ||
-        appointment.country.toLowerCase().includes(query) ||
-        appointment.state.toLowerCase().includes(query) ||
-        appointment.city.toLowerCase().includes(query) ||
-        appointment.pincode.toLowerCase().includes(query) ||
-        appointment.address.toLowerCase().includes(query) ||
-        appointment.state.toLowerCase().includes(query) ||
-        appointment.name.toLowerCase().includes(query) ||
-        appointment.mobileno.toLowerCase().includes(query) ||
-        appointment.email.toLowerCase().includes(query) ||
-        appointment.username.toLowerCase().includes(query) ||
-        appointment.client_name.toLowerCase().includes(query) ||
-        appointment.client_email.toLowerCase().includes(query) ||
-        appointment.client_address.toLowerCase().includes(query)
+  const fetchAppointmentsByPincode = async () => {
+    if (pincode) {
+      const res = await fetch(
+        `http://3.109.174.127:3005/getassistantbypincode?pincode=${pincode}`
       );
-    });
-
-    setFilteredAppointments(filtered);
+      const data = await res.json();
+      setFilteredAppointments(data);
+    }
   };
 
   // Pagination logic
@@ -109,7 +97,6 @@ function Laboratory() {
     indexOfFirstAppointment,
     indexOfLastAppointment
   );
-
   // Handle page change
   const paginate = (event, value) => {
     setCurrentPage(value);
@@ -128,18 +115,18 @@ function Laboratory() {
   const confirmDelete = async () => {
     try {
       const res = await fetch(
-        `http://3.109.174.127:3005/deleteLaboratory/${deleteId}`,
+        `http://3.109.174.127:3005/deleteAssistant/${deleteId}`,
         {
           method: "DELETE",
         }
       );
       if (res.ok) {
         setAppointmentList((prev) =>
-          prev.filter((item) => item.lab_id !== deleteId)
+          prev.filter((item) => item.assistant_id !== deleteId)
         );
         setShowDeleteModal(false);
         setDeleteId(null);
-        console.log("Laboratory deleted successfully");
+        console.log("Assistant deleted successfully");
       } else {
         console.error("Failed to delete assistant");
       }
@@ -166,14 +153,12 @@ function Laboratory() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <Link to="/laboratory">Centres</Link>
+                      <Link to="/assistantreport">Technician</Link>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
                     </li>
-                    <li class="breadcrumb-item active">
-                      Diagnoastic Centre List
-                    </li>
+                    <li class="breadcrumb-item active">Technician List</li>
                   </ul>
                 </div>
               </div>
@@ -187,16 +172,16 @@ function Laboratory() {
                       <div class="row align-items-center">
                         <div class="col">
                           <div class="doctor-table-blk">
-                            <h3>Diagnoastic Centre</h3>
+                            <h3>Technician</h3>
                             <div class="doctor-search-blk">
                               <div class="top-nav-search table-search-blk">
                                 <form>
                                   <input
                                     type="text"
                                     class="form-control"
-                                    placeholder="Search here"
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
+                                    placeholder="Enter Pincode"
+                                    value={pincode}
+                                    onChange={handlePincodeChange}
                                   />
                                   <a class="btn">
                                     <img
@@ -207,14 +192,14 @@ function Laboratory() {
                                 </form>
                               </div>
                               <div class="add-group">
-                                <Link
-                                  to="/addLaboratory"
-                                  style={{ textDecoration: "none" }}
+                                <a
+                                  //   href="add-appointment.html"
+                                  onClick={fetchAppointmentsByPincode}
                                   class="btn btn-primary add-pluss ms-2"
                                 >
-                                  <img src="assets/img/icons/plus.svg" alt="" />
-                                </Link>
-                                {/* <a
+                                  Search
+                                </a>
+                                <a
                                   href="javascript:;"
                                   class="btn btn-primary doctor-refresh ms-2"
                                 >
@@ -222,7 +207,7 @@ function Laboratory() {
                                     src="assets/img/icons/re-fresh.svg"
                                     alt=""
                                   />
-                                </a> */}
+                                </a>
                               </div>
                             </div>
                           </div>
@@ -271,7 +256,7 @@ function Laboratory() {
                                   padding: "16px",
                                 }}
                               >
-                                <Typography variant="h6">Centres</Typography>
+                                <Typography variant="h6">Assistants</Typography>
                               </DialogTitle>
 
                               <DialogContent sx={{ padding: "16px" }}>
@@ -281,54 +266,6 @@ function Laboratory() {
                                     sx={{ backgroundColor: "#f4f6f9" }}
                                   >
                                     <TableRow>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Title
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Country
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        State
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        City
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Pincode
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Address
-                                      </TableCell>
                                       <TableCell
                                         sx={{
                                           fontWeight: "bold",
@@ -369,53 +306,11 @@ function Laboratory() {
                                       >
                                         Password
                                       </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Client Name
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Client Email
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{
-                                          fontWeight: "bold",
-                                          color: "#2E37A4",
-                                        }}
-                                      >
-                                        Client Address
-                                      </TableCell>
                                     </TableRow>
                                   </TableHead>
                                   <TableBody>
                                     {appointment.map((appointment) => (
                                       <TableRow key={appointment.id}>
-                                        <TableCell>
-                                          {appointment.title}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.country}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.state}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.city}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.pincode}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.address}
-                                        </TableCell>
                                         <TableCell>
                                           {appointment.name}
                                         </TableCell>
@@ -427,18 +322,9 @@ function Laboratory() {
                                         </TableCell>
                                         <TableCell>
                                           {appointment.username}
-                                          <TableCell>
-                                            {appointment.password}
-                                          </TableCell>
-                                          <TableCell>
-                                            {appointment.client_name}
-                                          </TableCell>
-                                          <TableCell>
-                                            {appointment.client_email}
-                                          </TableCell>
-                                          <TableCell>
-                                            {appointment.client_address}
-                                          </TableCell>
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.password}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -476,14 +362,14 @@ function Laboratory() {
                         padding: "10px",
                       }}
                     >
-                      <Link
-                        to="/addLaboratory"
+                      {/* <Link
+                        to="/addassistant"
                         style={{ textDecoration: "none" }}
                       >
                         <Button variant="contained" color="primary">
-                          Add Centre
+                          Add Assistant
                         </Button>
-                      </Link>
+                      </Link> */}
                     </div>
 
                     <div class="table-responsive">
@@ -522,60 +408,6 @@ function Laboratory() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Title
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Country
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              State
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              City
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Pincode
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Address
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
                               Name
                             </th>
                             <th
@@ -603,6 +435,15 @@ function Laboratory() {
                                 padding: "12px 15px",
                               }}
                             >
+                              Pincode
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
                               Username
                             </th>
                             <th
@@ -614,33 +455,7 @@ function Laboratory() {
                             >
                               Password
                             </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Clinet Name
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Client Email
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Client Address
-                            </th>
+
                             <th
                               style={{
                                 fontWeight: "bold",
@@ -672,24 +487,6 @@ function Laboratory() {
                                 {indexOfFirstAppointment + index + 1}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.title}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.country}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.state}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.city}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.pincode}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.address}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
                                 {getcate.name}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
@@ -699,20 +496,15 @@ function Laboratory() {
                                 {getcate.email}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
+                                {getcate.pincode}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
                                 {getcate.username}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.password}
                               </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.client_name}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.client_email}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.client_address}
-                              </td>
+
                               <td
                                 className="text-center"
                                 style={{
@@ -750,7 +542,7 @@ function Laboratory() {
                                       View
                                     </a>
                                     <Link
-                                      to={`/edit-laboratory/${getcate.lab_id}`}
+                                      to={`/edit-assistant/${getcate.assistant_id}`}
                                       className="dropdown-item"
                                       style={{
                                         display: "flex",
@@ -775,7 +567,7 @@ function Laboratory() {
                                         alignItems: "center",
                                       }}
                                       onClick={() =>
-                                        handleDeleteClick(getcate.lab_id)
+                                        handleDeleteClick(getcate.assistant_id)
                                       }
                                     >
                                       <DeleteIcon
@@ -834,7 +626,7 @@ function Laboratory() {
           <Dialog open={showDeleteModal} onClose={cancelDelete}>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete this Assistant?
+              Are you sure you want to delete this laboratory?
             </DialogContent>
             <DialogActions>
               <Button onClick={cancelDelete} color="secondary">
@@ -1084,6 +876,7 @@ function Laboratory() {
               </div>
             </div>
           </div>
+
           <footer
             style={{
               marginTop: "20px",
@@ -1165,7 +958,7 @@ function Laboratory() {
                   }}
                 >
                   <i className="fa-solid fa-calendar-check me-2"></i>
-                  laboratories Details
+                  Assistant Details
                 </h5>
                 <button
                   type="button"
@@ -1195,7 +988,7 @@ function Laboratory() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>laboratory No:</strong>{" "}
+                          <strong>Assistant No:</strong>{" "}
                           {selectedAppointment.lab_id}
                         </p>
                       </div>
@@ -1209,92 +1002,11 @@ function Laboratory() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Title:</strong> {selectedAppointment.title}
+                          <strong>Name:</strong> {selectedAppointment.name}
                         </p>
                       </div>
                     </div>
                     <div className="col-md-6">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Country:</strong>{" "}
-                          {selectedAppointment.country}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>State:</strong> {selectedAppointment.state}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>City:</strong> {selectedAppointment.city}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Pincode:</strong>{" "}
-                          {selectedAppointment.pincode}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Address:</strong>{" "}
-                          {selectedAppointment.address}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Name:</strong> {selectedAppointment.address}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1308,7 +1020,7 @@ function Laboratory() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-12">
+                    <div className="col-md-6">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1318,6 +1030,20 @@ function Laboratory() {
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
                           <strong>Email:</strong> {selectedAppointment.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Pincode:</strong>{" "}
+                          {selectedAppointment.pincode}
                         </p>
                       </div>
                     </div>
@@ -1349,48 +1075,7 @@ function Laboratory() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Clinet Name:</strong>{" "}
-                          {selectedAppointment.client_name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>client Email:</strong>{" "}
-                          {selectedAppointment.password}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Client Address:</strong>{" "}
-                          {selectedAppointment.password}
-                        </p>
-                      </div>
-                    </div>
+
                     {/* <div className="col-md-12 text-end mt-4">
                       <Link
                         to="/ReplyAppointment"
@@ -1456,4 +1141,4 @@ function Laboratory() {
   );
 }
 
-export default Laboratory;
+export default Assistant;

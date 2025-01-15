@@ -29,7 +29,7 @@ function Laboratory() {
   const [showDeleteModal, setShowDeleteModal] = useState(false); // Track delete modal
   const [deleteId, setDeleteId] = useState(null);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Track the search query
+  const [pincode, setPincode] = useState(""); // Track the search query
 
   const itemsPerPage = 5; // Number of items per page
 
@@ -75,31 +75,19 @@ function Laboratory() {
     setShowAppointmentDetails(false);
   };
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
+  // Function to handle pincode input change
+  const handlePincodeChange = (event) => {
+    setPincode(event.target.value);
+  };
 
-    // Filter appointments based on search query
-    const filtered = appointment.filter((appointment) => {
-      return (
-        appointment.title.toLowerCase().includes(query) ||
-        appointment.country.toLowerCase().includes(query) ||
-        appointment.state.toLowerCase().includes(query) ||
-        appointment.city.toLowerCase().includes(query) ||
-        appointment.pincode.toLowerCase().includes(query) ||
-        appointment.address.toLowerCase().includes(query) ||
-        appointment.state.toLowerCase().includes(query) ||
-        appointment.name.toLowerCase().includes(query) ||
-        appointment.mobileno.toLowerCase().includes(query) ||
-        appointment.email.toLowerCase().includes(query) ||
-        appointment.username.toLowerCase().includes(query) ||
-        appointment.client_name.toLowerCase().includes(query) ||
-        appointment.client_email.toLowerCase().includes(query) ||
-        appointment.client_address.toLowerCase().includes(query)
+  const fetchAppointmentsByPincode = async () => {
+    if (pincode) {
+      const res = await fetch(
+        `http://3.109.174.127:3005/getcentrebypincode?pincode=${pincode}`
       );
-    });
-
-    setFilteredAppointments(filtered);
+      const data = await res.json();
+      setFilteredAppointments(data);
+    }
   };
 
   // Pagination logic
@@ -166,7 +154,7 @@ function Laboratory() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <Link to="/laboratory">Centres</Link>
+                      <Link to="/diagnosticreport">Centres</Link>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
@@ -194,9 +182,9 @@ function Laboratory() {
                                   <input
                                     type="text"
                                     class="form-control"
-                                    placeholder="Search here"
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
+                                    placeholder="Enter Pincode"
+                                    value={pincode}
+                                    onChange={handlePincodeChange}
                                   />
                                   <a class="btn">
                                     <img
@@ -207,14 +195,14 @@ function Laboratory() {
                                 </form>
                               </div>
                               <div class="add-group">
-                                <Link
-                                  to="/addLaboratory"
-                                  style={{ textDecoration: "none" }}
+                                <a
+                                  //   href="add-appointment.html"
+                                  onClick={fetchAppointmentsByPincode}
                                   class="btn btn-primary add-pluss ms-2"
                                 >
-                                  <img src="assets/img/icons/plus.svg" alt="" />
-                                </Link>
-                                {/* <a
+                                  Search
+                                </a>
+                                <a
                                   href="javascript:;"
                                   class="btn btn-primary doctor-refresh ms-2"
                                 >
@@ -222,7 +210,7 @@ function Laboratory() {
                                     src="assets/img/icons/re-fresh.svg"
                                     alt=""
                                   />
-                                </a> */}
+                                </a>
                               </div>
                             </div>
                           </div>
@@ -476,14 +464,14 @@ function Laboratory() {
                         padding: "10px",
                       }}
                     >
-                      <Link
+                      {/* <Link
                         to="/addLaboratory"
                         style={{ textDecoration: "none" }}
                       >
                         <Button variant="contained" color="primary">
                           Add Centre
                         </Button>
-                      </Link>
+                      </Link> */}
                     </div>
 
                     <div class="table-responsive">
