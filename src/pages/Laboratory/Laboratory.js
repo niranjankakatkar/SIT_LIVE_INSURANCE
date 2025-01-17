@@ -140,6 +140,7 @@ function Laboratory() {
         setShowDeleteModal(false);
         setDeleteId(null);
         console.log("Laboratory deleted successfully");
+        window.location.reload();
       } else {
         console.error("Failed to delete assistant");
       }
@@ -481,7 +482,7 @@ function Laboratory() {
                         style={{ textDecoration: "none" }}
                       >
                         <Button variant="contained" color="primary">
-                          Add Centre
+                          Add Diagnoastic Centre
                         </Button>
                       </Link>
                     </div>

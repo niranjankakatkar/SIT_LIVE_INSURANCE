@@ -132,47 +132,47 @@ function Appointment() {
 
   return (
     <div>
-      <div class="main-wrapper">
+      <div className="main-wrapper">
         <Navbar />
 
-        <div class="page-wrapper">
-          <div class="content">
-            <div class="page-header">
-              <div class="row">
-                <div class="col-sm-12">
-                  <ul class="breadcrumb">
-                    <li class="breadcrumb-item">
+        <div className="page-wrapper">
+          <div className="content">
+            <div className="page-header">
+              <div className="row">
+                <div className="col-sm-12">
+                  <ul className="breadcrumb">
+                    <li className="breadcrumb-item">
                       <a href="/Appointment">Appointment</a>
                     </li>
-                    <li class="breadcrumb-item">
-                      <i class="feather-chevron-right"></i>
+                    <li className="breadcrumb-item">
+                      <i className="feather-chevron-right"></i>
                     </li>
-                    <li class="breadcrumb-item active">Appointment List</li>
+                    <li className="breadcrumb-item active">Appointment List</li>
                   </ul>
                 </div>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="card card-table show-entire">
-                  <div class="card-body">
-                    <div class="page-table-header mb-2">
-                      <div class="row align-items-center">
-                        <div class="col">
-                          <div class="doctor-table-blk">
+            <div className="row">
+              <div className="col-sm-12">
+                <div className="card card-table show-entire">
+                  <div className="card-body">
+                    <div className="page-table-header mb-2">
+                      <div className="row align-items-center">
+                        <div className="col">
+                          <div className="doctor-table-blk">
                             <h3>Appointment</h3>
-                            <div class="doctor-search-blk">
-                              <div class="top-nav-search table-search-blk">
+                            <div className="doctor-search-blk">
+                              <div className="top-nav-search table-search-blk">
                                 <form>
                                   <input
                                     type="text"
-                                    class="form-control"
+                                    className="form-control"
                                     placeholder="Search here"
                                     value={searchQuery}
                                     onChange={handleSearchChange}
                                   />
-                                  <a class="btn">
+                                  <a className="btn">
                                     <img
                                       src="assets/img/icons/search-normal.svg"
                                       alt=""
@@ -180,17 +180,17 @@ function Appointment() {
                                   </a>
                                 </form>
                               </div>
-                              <div class="add-group">
+                              <div className="add-group">
                                 <Link
                                   to="/addAppointment"
                                   style={{ textDecoration: "none" }}
-                                  class="btn btn-primary add-pluss ms-2"
+                                  className="btn btn-primary add-pluss ms-2"
                                 >
                                   <img src="assets/img/icons/plus.svg" alt="" />
                                 </Link>
                                 {/* <a
                                   href="javascript:;"
-                                  class="btn btn-primary doctor-refresh ms-2"
+                                  className="btn btn-primary doctor-refresh ms-2"
                                 >
                                   <img
                                     src="assets/img/icons/re-fresh.svg"
@@ -201,20 +201,20 @@ function Appointment() {
                             </div>
                           </div>
                         </div>
-                        <div class="col-auto text-end float-end ms-auto download-grp">
-                          <a href="javascript:;" class=" me-2">
+                        <div className="col-auto text-end float-end ms-auto download-grp">
+                          <a href="javascript:;" className=" me-2">
                             <img
                               src="assets/img/icons/pdf-icon-01.svg"
                               alt=""
                             />
                           </a>
-                          <a href="javascript:;" class=" me-2">
+                          <a href="javascript:;" className=" me-2">
                             <img
                               src="assets/img/icons/pdf-icon-02.svg"
                               alt=""
                             />
                           </a>
-                          <a href="javascript:;" class=" me-2">
+                          <a href="javascript:;" className=" me-2">
                             <img
                               src="assets/img/icons/pdf-icon-03.svg"
                               alt=""
@@ -343,7 +343,7 @@ function Appointment() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Insurance Name
+                                        Insurance Company Name
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -428,7 +428,7 @@ function Appointment() {
                       </div>
                     </div>
 
-                    <div
+                    {/* <div
                       style={{
                         display: "flex",
                         justifyContent: "flex-end",
@@ -443,9 +443,9 @@ function Appointment() {
                           Add Appointment
                         </Button>
                       </Link>
-                    </div>
+                    </div> */}
 
-                    <div class="table-responsive">
+                    <div className="table-responsive">
                       <table
                         className="table table-bordered custom-table comman-table datatable mb-0"
                         style={{
@@ -572,7 +572,7 @@ function Appointment() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Insurance Name
+                              Insurance Company Name
                             </th>
                             <th
                               style={{
@@ -745,7 +745,7 @@ function Appointment() {
                           alignItems: "center",
                           textAlign: "center",
                           marginTop: "20px",
-                          padding:'10px'
+                          padding: "10px",
                         }}
                       >
                         {/* Entry Range Display */}
@@ -776,24 +776,24 @@ function Appointment() {
             </div>
           </div>
 
-          <div class="notification-box">
-            <div class="msg-sidebar notifications msg-noti">
-              <div class="topnav-dropdown-header">
+          <div className="notification-box">
+            <div className="msg-sidebar notifications msg-noti">
+              <div className="topnav-dropdown-header">
                 <span>Messages</span>
               </div>
-              <div class="drop-scroll msg-list-scroll" id="msg_list">
-                <ul class="list-box">
+              <div className="drop-scroll msg-list-scroll" id="msg_list">
+                <ul className="list-box">
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">R</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Richard Miles </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Richard Miles </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -802,15 +802,15 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item new-message">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
+                      <div className="list-item new-message">
+                        <div className="list-left">
+                          <span className="avatar">J</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">John Doe</span>
-                          <span class="message-time">1 Aug</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">John Doe</span>
+                          <span className="message-time">1 Aug</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -819,15 +819,18 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">T</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Tarah Shropshire </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Tarah Shropshire{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -836,15 +839,15 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">M</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Mike Litorus</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Mike Litorus</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -853,18 +856,18 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">C</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">
+                        <div className="list-body">
+                          <span className="message-author">
                             {" "}
                             Catherine Manseau{" "}
                           </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -873,15 +876,18 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">D</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">D</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Domenic Houston </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Domenic Houston{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -890,15 +896,18 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">B</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">B</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Buster Wigton </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Buster Wigton{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -907,15 +916,18 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">R</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Rolland Webber </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Rolland Webber{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -924,15 +936,15 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">C</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Claire Mapes </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author"> Claire Mapes </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -941,15 +953,15 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">M</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Melita Faucher</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Melita Faucher</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -958,15 +970,15 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">J</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Jeffery Lalor</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Jeffery Lalor</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -975,15 +987,15 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">L</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">L</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Loren Gatlin</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Loren Gatlin</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -992,15 +1004,17 @@ function Appointment() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">T</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Tarah Shropshire</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            Tarah Shropshire
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -1009,7 +1023,7 @@ function Appointment() {
                   </li>
                 </ul>
               </div>
-              <div class="topnav-dropdown-footer">
+              <div className="topnav-dropdown-footer">
                 <a href="chat.html">See all messages</a>
               </div>
             </div>
@@ -1035,18 +1049,22 @@ function Appointment() {
           </footer>
         </div>
 
-        <div id="delete_patient" class="modal fade delete-modal" role="dialog">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-body text-center">
+        <div
+          id="delete_patient"
+          className="modal fade delete-modal"
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-body text-center">
                 <img src="assets/img/sent.png" alt="" width="50" height="46" />
                 <h3>Are you sure want to delete this ?</h3>
-                <div class="m-t-20">
+                <div className="m-t-20">
                   {" "}
-                  <a href="#" class="btn btn-white" data-bs-dismiss="modal">
+                  <a href="#" className="btn btn-white" data-bs-dismiss="modal">
                     Close
                   </a>
-                  <button type="submit" class="btn btn-danger">
+                  <button type="submit" className="btn btn-danger">
                     Delete
                   </button>
                 </div>

@@ -4,7 +4,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import React, { useEffect, useState } from "react";
-import Navbar from "../navBar";
+import InnerNavbar from "../InnerNavbar";
 import {
   Dialog,
   DialogActions,
@@ -19,32 +19,68 @@ import {
   Typography,
   Pagination,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
-function Assistant() {
+function Appointment() {
+  const { id } = useParams();
   const [appointment, setAppointmentList] = useState([]);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showAppointmentDetails, setShowAppointmentDetails] = useState(false); // Track showing details
   const [currentPage, setCurrentPage] = useState(1);
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Track delete modal
-  const [deleteId, setDeleteId] = useState(null);
-  const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [pincode, setPincode] = useState(""); // Track the search query
-
+  const [searchQuery, setSearchQuery] = useState(""); // Track the search query
   const itemsPerPage = 5; // Number of items per page
+  const [selectedAppointments, setSelectedAppointments] = useState([]);
+  const [technicianId, setTechnicianId] = useState(id);
+
+  const handleCheckboxChange = (appointmentId) => {
+    setSelectedAppointments((prevSelectedAppointments) => {
+      if (prevSelectedAppointments.includes(appointmentId)) {
+        return prevSelectedAppointments.filter((id) => id !== appointmentId); // Deselect
+      } else {
+        return [...prevSelectedAppointments, appointmentId]; // Select
+      }
+    });
+  };
+
+  const handleAssignTechnician = async () => {
+    if (selectedAppointments.length === 0) {
+      alert("Please select at least one appointment!");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://3.109.174.127:3005/assignTechnicians", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          technicianId: technicianId, // Use the technicianId from route
+          appointmentIds: selectedAppointments, // Pass the array of selected appointment IDs
+        }),
+      });
+
+      const data = await response.json();
+      alert(data.message || "Appointment assigned successfully!");
+    } catch (error) {
+      console.error("Error assigning technician:", error);
+      alert("Failed to assign technicians");
+    }
+  };
 
   useEffect(() => {
     const getAppointmentList = async () => {
-      const res = await fetch("http://3.109.174.127:3005/getAllassistant");
+      const res = await fetch("http://3.109.174.127:3005/getallappointmentfortechnician");
       const getData = await res.json();
       setAppointmentList(getData);
-      setFilteredAppointments(getData);
+      setFilteredAppointments(getData); // Initialize filtered appointments
     };
     getAppointmentList();
   }, []);
 
   useEffect(() => {
-    // Ensure modal initializes correctly
+    // Ensure modal initializes correctlya
     const modal = document.getElementById("viewAppointmentModal");
     if (modal) {
       const modalInstance = new window.bootstrap.Modal(modal);
@@ -75,19 +111,46 @@ function Assistant() {
     setShowAppointmentDetails(false);
   };
 
-  // Function to handle pincode input change
-  const handlePincodeChange = (event) => {
-    setPincode(event.target.value);
+  // Handle search input change
+  const handleSearchChange = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Filter appointments based on search query
+    const filtered = appointment.filter((appointment) => {
+      return (
+        appointment.name.toLowerCase().includes(query) ||
+        appointment.treatment.toLowerCase().includes(query) ||
+        appointment.mobileno.toLowerCase().includes(query) ||
+        appointment.appointment_no.toLowerCase().includes(query) ||
+        appointment.address.toLowerCase().includes(query) ||
+        appointment.country.toLowerCase().includes(query) ||
+        appointment.state.toLowerCase().includes(query) ||
+        appointment.city.toLowerCase().includes(query) ||
+        appointment.pincode.toLowerCase().includes(query) ||
+        appointment.insurance_name.toLowerCase().includes(query) ||
+        appointment.tpa_details.toLowerCase().includes(query)
+      );
+    });
+
+    setFilteredAppointments(filtered);
   };
 
-  const fetchAppointmentsByPincode = async () => {
-    if (pincode) {
-      const res = await fetch(
-        `http://3.109.174.127:3005/getassistantbypincode?pincode=${pincode}`
-      );
-      const data = await res.json();
-      setFilteredAppointments(data);
-    }
+  const highlightText = (text, query) => {
+    if (!query) return text;
+
+    const regex = new RegExp(`(${query})`, "gi"); // Global, case-insensitive match
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <span key={index} className="highlight">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
   };
 
   // Pagination logic
@@ -97,6 +160,7 @@ function Assistant() {
     indexOfFirstAppointment,
     indexOfLastAppointment
   );
+
   // Handle page change
   const paginate = (event, value) => {
     setCurrentPage(value);
@@ -105,85 +169,49 @@ function Assistant() {
   // Calculate total pages
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
 
-  // Handle Delete Confirmation
-  const handleDeleteClick = (id) => {
-    setDeleteId(id);
-    setShowDeleteModal(true);
-  };
-
-  // Confirm Deletion
-  const confirmDelete = async () => {
-    try {
-      const res = await fetch(
-        `http://3.109.174.127:3005/deleteAssistant/${deleteId}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (res.ok) {
-        setAppointmentList((prev) =>
-          prev.filter((item) => item.assistant_id !== deleteId)
-        );
-        setShowDeleteModal(false);
-        setDeleteId(null);
-        console.log("Assistant deleted successfully");
-      } else {
-        console.error("Failed to delete assistant");
-      }
-    } catch (error) {
-      console.error("Error deleting assistant:", error);
-    }
-  };
-
-  // Cancel Deletion
-  const cancelDelete = () => {
-    setShowDeleteModal(false);
-    setDeleteId(null);
-  };
-
   return (
     <div>
-      <div class="main-wrapper">
-        <Navbar />
+      <div className="main-wrapper">
+        <InnerNavbar />
 
-        <div class="page-wrapper">
-          <div class="content">
-            <div class="page-header">
-              <div class="row">
-                <div class="col-sm-12">
-                  <ul class="breadcrumb">
-                    <li class="breadcrumb-item">
-                      <Link to="/assistantreport">Technician</Link>
+        <div className="page-wrapper">
+          <div className="content">
+            <div className="page-header">
+              <div className="row">
+                <div className="col-sm-12">
+                  <ul className="breadcrumb">
+                    <li className="breadcrumb-item">
+                      <a href="/Appointment">Appointment</a>
                     </li>
-                    <li class="breadcrumb-item">
-                      <i class="feather-chevron-right"></i>
+                    <li className="breadcrumb-item">
+                      <i className="feather-chevron-right"></i>
                     </li>
-                    <li class="breadcrumb-item active">Technician List</li>
+                    <li className="breadcrumb-item active">Appointment List</li>
                   </ul>
                 </div>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="card card-table show-entire">
-                  <div class="card-body">
-                    <div class="page-table-header mb-2">
-                      <div class="row align-items-center">
-                        <div class="col">
-                          <div class="doctor-table-blk">
-                            <h3>Technician Report</h3>
-                            <div class="doctor-search-blk">
-                              <div class="top-nav-search table-search-blk">
+            <div className="row">
+              <div className="col-sm-12">
+                <div className="card card-table show-entire">
+                  <div className="card-body">
+                    <div className="page-table-header mb-2">
+                      <div className="row align-items-center">
+                        <div className="col">
+                          <div className="doctor-table-blk">
+                            <h3>Appointment</h3>
+                            <div className="doctor-search-blk">
+                              <div className="top-nav-search table-search-blk">
                                 <form>
                                   <input
                                     type="text"
-                                    class="form-control"
-                                    placeholder="Enter Pincode"
-                                    value={pincode}
-                                    onChange={handlePincodeChange}
+                                    className="form-control"
+                                    placeholder="Search here"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
                                   />
-                                  <a class="btn">
+                                  <a className="btn">
                                     <img
                                       src="assets/img/icons/search-normal.svg"
                                       alt=""
@@ -191,41 +219,41 @@ function Assistant() {
                                   </a>
                                 </form>
                               </div>
-                              <div class="add-group">
-                                <a
-                                  //   href="add-appointment.html"
-                                  onClick={fetchAppointmentsByPincode}
-                                  class="btn btn-primary add-pluss ms-2"
+                              <div className="add-group">
+                                <Link
+                                  to="/addAppointment"
+                                  style={{ textDecoration: "none" }}
+                                  className="btn btn-primary add-pluss ms-2"
                                 >
-                                  Search
-                                </a>
-                                <a
+                                  <img src="assets/img/icons/plus.svg" alt="" />
+                                </Link>
+                                {/* <a
                                   href="javascript:;"
-                                  class="btn btn-primary doctor-refresh ms-2"
+                                  className="btn btn-primary doctor-refresh ms-2"
                                 >
                                   <img
                                     src="assets/img/icons/re-fresh.svg"
                                     alt=""
                                   />
-                                </a>
+                                </a> */}
                               </div>
                             </div>
                           </div>
                         </div>
-                        <div class="col-auto text-end float-end ms-auto download-grp">
-                          <a href="javascript:;" class=" me-2">
+                        <div className="col-auto text-end float-end ms-auto download-grp">
+                          <a href="javascript:;" className=" me-2">
                             <img
                               src="assets/img/icons/pdf-icon-01.svg"
                               alt=""
                             />
                           </a>
-                          <a href="javascript:;" class=" me-2">
+                          <a href="javascript:;" className=" me-2">
                             <img
                               src="assets/img/icons/pdf-icon-02.svg"
                               alt=""
                             />
                           </a>
-                          <a href="javascript:;" class=" me-2">
+                          <a href="javascript:;" className=" me-2">
                             <img
                               src="assets/img/icons/pdf-icon-03.svg"
                               alt=""
@@ -236,7 +264,7 @@ function Assistant() {
                             {/* Image Click to Show Appointment Details */}
                             <a onClick={handleImageClick}>
                               <img
-                                src="assets/img/icons/pdf-icon-04.svg"
+                                src="/assets/img/icons/pdf-icon-04.svg"
                                 alt="View Appointments"
                               />
                             </a>
@@ -256,9 +284,10 @@ function Assistant() {
                                   padding: "16px",
                                 }}
                               >
-                                <Typography variant="h6">Assistants</Typography>
+                                <Typography variant="h6">
+                                  Appointments
+                                </Typography>
                               </DialogTitle>
-
                               <DialogContent sx={{ padding: "16px" }}>
                                 {/* Table to Show Appointment Details */}
                                 <Table>
@@ -272,7 +301,7 @@ function Assistant() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Name
+                                        Appointment Time
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -280,7 +309,7 @@ function Assistant() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Mobile No
+                                        Client Name
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -288,7 +317,7 @@ function Assistant() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Email
+                                        Medical Test Details
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -296,7 +325,7 @@ function Assistant() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Username
+                                        Contact No
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -304,7 +333,64 @@ function Assistant() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Password
+                                        Proposal No
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Address
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Country
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        State
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        City
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Pincode
+                                      </TableCell>
+
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Insurance Company Name
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        TPA Details
                                       </TableCell>
                                     </TableRow>
                                   </TableHead>
@@ -312,19 +398,45 @@ function Assistant() {
                                     {appointment.map((appointment) => (
                                       <TableRow key={appointment.id}>
                                         <TableCell>
+                                          {new Date(
+                                            appointment.time
+                                          ).toLocaleString("en-US", {
+                                            timeZone: "Asia/Kolkata",
+                                          })}
+                                        </TableCell>
+                                        <TableCell>
                                           {appointment.name}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.treatment}
                                         </TableCell>
                                         <TableCell>
                                           {appointment.mobileno}
                                         </TableCell>
                                         <TableCell>
-                                          {appointment.email}
+                                          {appointment.appointment_no}
                                         </TableCell>
                                         <TableCell>
-                                          {appointment.username}
+                                          {appointment.address}
                                         </TableCell>
                                         <TableCell>
-                                          {appointment.password}
+                                          {appointment.country}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.state}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.city}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.pincode}
+                                        </TableCell>
+
+                                        <TableCell>
+                                          {appointment.insurance_name}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.tpa_details}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -362,17 +474,16 @@ function Assistant() {
                         padding: "10px",
                       }}
                     >
-                      {/* <Link
-                        to="/addassistant"
-                        style={{ textDecoration: "none" }}
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleAssignTechnician}
                       >
-                        <Button variant="contained" color="primary">
-                          Add Assistant
-                        </Button>
-                      </Link> */}
+                        Assigned Appointments
+                      </Button>
                     </div>
 
-                    <div class="table-responsive">
+                    <div className="table-responsive">
                       <table
                         className="table table-bordered custom-table comman-table datatable mb-0"
                         style={{
@@ -403,12 +514,13 @@ function Assistant() {
                             </th>
                             <th
                               style={{
+                                textAlign: "center",
                                 fontWeight: "bold",
                                 color: "#2E37A4",
                                 padding: "12px 15px",
                               }}
                             >
-                              Name
+                              Select
                             </th>
                             <th
                               style={{
@@ -417,7 +529,7 @@ function Assistant() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Mobile No
+                              Appointment Date
                             </th>
                             <th
                               style={{
@@ -426,7 +538,70 @@ function Assistant() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Email
+                              Client Name
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Medical Test Details
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Contact No
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Proposal No
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Address
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Country
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              State
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              City
                             </th>
                             <th
                               style={{
@@ -437,41 +612,31 @@ function Assistant() {
                             >
                               Pincode
                             </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Username
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Password
-                            </th>
 
                             <th
                               style={{
                                 fontWeight: "bold",
-                                textAlign: "center",
                                 color: "#2E37A4",
                                 padding: "12px 15px",
                               }}
                             >
-                              Actions
+                              Insurance Company Name
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              TPA Details
                             </th>
                           </tr>
                         </thead>
                         <tbody>
                           {currentAppointments.map((getcate, index) => (
                             <tr
-                              key={getcate.id}
+                              key={getcate.appointment_id}
                               style={{
                                 backgroundColor:
                                   index % 2 === 0 ? "#ffffff" : "#f9f9f9",
@@ -486,97 +651,65 @@ function Assistant() {
                               >
                                 {indexOfFirstAppointment + index + 1}
                               </td>
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  onChange={() =>
+                                    handleCheckboxChange(
+                                      getcate.appointment_id,
+                                      getcate.technician_id
+                                    )
+                                  }
+                                />
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {new Date(getcate.time).toLocaleString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                    hour12: true,
+                                    timeZone: "Asia/Kolkata",
+                                  }
+                                )}
+                              </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.name}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.treatment}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.mobileno}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.email}
+                                {getcate.appointment_no}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.address}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.country}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.state}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.city}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.pincode}
                               </td>
+
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.username}
+                                {getcate.insurance_name}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.password}
-                              </td>
-
-                              <td
-                                className="text-center"
-                                style={{
-                                  padding: "12px 15px",
-                                  display: "flex",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                <div className="dropdown dropdown-action">
-                                  <a
-                                    href="#"
-                                    className="action-icon dropdown-toggle"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                    style={{
-                                      fontSize: "16px",
-                                      color: "#333",
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    <i className="fa fa-ellipsis-v"></i>
-                                  </a>
-                                  <div className="dropdown-menu dropdown-menu-end">
-                                    <a
-                                      className="dropdown-item"
-                                      onClick={() => handleViewDetails(getcate)}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      <VisibilityIcon
-                                        style={{ marginRight: "8px" }}
-                                      />
-                                      View
-                                    </a>
-                                    <Link
-                                      to={`/edit-assistant/${getcate.assistant_id}`}
-                                      className="dropdown-item"
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        textDecoration: "none",
-                                        color: "inherit",
-                                      }}
-                                    >
-                                      <EditIcon
-                                        style={{ marginRight: "8px" }}
-                                      />
-                                      Edit
-                                    </Link>
-
-                                    <a
-                                      className="dropdown-item"
-                                      // href="#"
-                                      // data-bs-toggle="modal"
-                                      // data-bs-target="#delete_patient"
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                      }}
-                                      onClick={() =>
-                                        handleDeleteClick(getcate.assistant_id)
-                                      }
-                                    >
-                                      <DeleteIcon
-                                        style={{ marginRight: "8px" }}
-                                      />
-                                      Delete
-                                    </a>
-                                  </div>
-                                </div>
+                                {getcate.tpa_details}
                               </td>
                             </tr>
                           ))}
@@ -622,40 +755,24 @@ function Assistant() {
             </div>
           </div>
 
-          {/* Delete Confirmation Modal */}
-          <Dialog open={showDeleteModal} onClose={cancelDelete}>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogContent>
-              Are you sure you want to delete this laboratory?
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={cancelDelete} color="secondary">
-                Cancel
-              </Button>
-              <Button onClick={confirmDelete} color="error">
-                Delete
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <div class="notification-box">
-            <div class="msg-sidebar notifications msg-noti">
-              <div class="topnav-dropdown-header">
+          <div className="notification-box">
+            <div className="msg-sidebar notifications msg-noti">
+              <div className="topnav-dropdown-header">
                 <span>Messages</span>
               </div>
-              <div class="drop-scroll msg-list-scroll" id="msg_list">
-                <ul class="list-box">
+              <div className="drop-scroll msg-list-scroll" id="msg_list">
+                <ul className="list-box">
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">R</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Richard Miles </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Richard Miles </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -664,15 +781,15 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item new-message">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
+                      <div className="list-item new-message">
+                        <div className="list-left">
+                          <span className="avatar">J</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">John Doe</span>
-                          <span class="message-time">1 Aug</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">John Doe</span>
+                          <span className="message-time">1 Aug</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -681,15 +798,18 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">T</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Tarah Shropshire </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Tarah Shropshire{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -698,15 +818,15 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">M</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Mike Litorus</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Mike Litorus</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -715,18 +835,18 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">C</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">
+                        <div className="list-body">
+                          <span className="message-author">
                             {" "}
                             Catherine Manseau{" "}
                           </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -735,15 +855,18 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">D</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">D</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Domenic Houston </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Domenic Houston{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -752,15 +875,18 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">B</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">B</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Buster Wigton </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Buster Wigton{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -769,15 +895,18 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">R</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Rolland Webber </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            {" "}
+                            Rolland Webber{" "}
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -786,15 +915,15 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">C</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author"> Claire Mapes </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author"> Claire Mapes </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -803,15 +932,15 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">M</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Melita Faucher</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Melita Faucher</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -820,15 +949,15 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">J</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Jeffery Lalor</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Jeffery Lalor</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -837,15 +966,15 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">L</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">L</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Loren Gatlin</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">Loren Gatlin</span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -854,15 +983,17 @@ function Assistant() {
                   </li>
                   <li>
                     <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
+                      <div className="list-item">
+                        <div className="list-left">
+                          <span className="avatar">T</span>
                         </div>
-                        <div class="list-body">
-                          <span class="message-author">Tarah Shropshire</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
+                        <div className="list-body">
+                          <span className="message-author">
+                            Tarah Shropshire
+                          </span>
+                          <span className="message-time">12:28 AM</span>
+                          <div className="clearfix"></div>
+                          <span className="message-content">
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                           </span>
                         </div>
@@ -871,12 +1002,11 @@ function Assistant() {
                   </li>
                 </ul>
               </div>
-              <div class="topnav-dropdown-footer">
+              <div className="topnav-dropdown-footer">
                 <a href="chat.html">See all messages</a>
               </div>
             </div>
           </div>
-
           <footer
             style={{
               marginTop: "20px",
@@ -897,18 +1027,23 @@ function Assistant() {
             All Rights Reserved.
           </footer>
         </div>
-        <div id="delete_patient" class="modal fade delete-modal" role="dialog">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-body text-center">
+
+        <div
+          id="delete_patient"
+          className="modal fade delete-modal"
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-body text-center">
                 <img src="assets/img/sent.png" alt="" width="50" height="46" />
                 <h3>Are you sure want to delete this ?</h3>
-                <div class="m-t-20">
+                <div className="m-t-20">
                   {" "}
-                  <a href="#" class="btn btn-white" data-bs-dismiss="modal">
+                  <a href="#" className="btn btn-white" data-bs-dismiss="modal">
                     Close
                   </a>
-                  <button type="submit" class="btn btn-danger">
+                  <button type="submit" className="btn btn-danger">
                     Delete
                   </button>
                 </div>
@@ -958,7 +1093,7 @@ function Assistant() {
                   }}
                 >
                   <i className="fa-solid fa-calendar-check me-2"></i>
-                  Assistant Details
+                  Appointment Details
                 </h5>
                 <button
                   type="button"
@@ -988,8 +1123,34 @@ function Assistant() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Assistant No:</strong>{" "}
-                          {selectedAppointment.lab_id}
+                          <strong>Appointment No:</strong>{" "}
+                          {selectedAppointment.appointment_no}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Date:</strong>{" "}
+                          {new Date(selectedAppointment.time).toLocaleString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                              hour12: true,
+                              timeZone: "Asia/Kolkata",
+                            }
+                          )}
                         </p>
                       </div>
                     </div>
@@ -1015,8 +1176,36 @@ function Assistant() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Mobile No:</strong>{" "}
+                          <strong>Mobile:</strong>{" "}
                           {selectedAppointment.mobileno}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Test Details:</strong>{" "}
+                          {selectedAppointment.treatment}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Address:</strong>{" "}
+                          {selectedAppointment.address}
                         </p>
                       </div>
                     </div>
@@ -1029,7 +1218,34 @@ function Assistant() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Email:</strong> {selectedAppointment.email}
+                          <strong>Country:</strong>{" "}
+                          {selectedAppointment.country}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>State:</strong> {selectedAppointment.state}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>City:</strong> {selectedAppointment.city}
                         </p>
                       </div>
                     </div>
@@ -1047,35 +1263,35 @@ function Assistant() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Username:</strong>{" "}
-                          {selectedAppointment.username}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Password:</strong>{" "}
-                          {selectedAppointment.password}
-                        </p>
-                      </div>
-                    </div>
 
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Insurance Name:</strong>{" "}
+                          {selectedAppointment.insurance_name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>TPA Details:</strong>{" "}
+                          {selectedAppointment.tpa_details}
+                        </p>
+                      </div>
+                    </div>
                     {/* <div className="col-md-12 text-end mt-4">
                       <Link
                         to="/ReplyAppointment"
@@ -1141,4 +1357,4 @@ function Assistant() {
   );
 }
 
-export default Assistant;
+export default Appointment;

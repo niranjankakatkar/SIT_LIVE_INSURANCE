@@ -66,21 +66,37 @@ const EditAssistant = () => {
 
   const validateForm = () => {
     const { name, mobileno, email, username, password } = formData;
-    const errors = {};
+    const newErrors = {};
 
-    // Check for empty fields
-    if (!name) errors.name = "Name is required!";
-    if (!mobileno) errors.mobileno = "Mobile number is required!";
-    if (!email) errors.email = "Email is required!";
-    if (!username) errors.username = "Username is required!";
-    if (!password) errors.password = "Password is required!";
-
-    // Mobile number validation (assuming it's a 10-digit number)
-    if (mobileno && (isNaN(mobileno) || mobileno.length !== 10)) {
-      errors.mobileno = "Mobile number must be a 10-digit number.";
+    // Name validation (letters and spaces only)
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!name) {
+      newErrors.name = "Name is required!";
+    } else if (!nameRegex.test(name)) {
+      newErrors.name = "Name must contain only letters and spaces.";
     }
 
-    return errors;
+    // Mobile number validation
+    if (!mobileno) {
+      newErrors.mobileno = "Mobile number is required!";
+    } else if (!/^[0-9]{10}$/.test(mobileno)) {
+      newErrors.mobileno = "Mobile number must be 10 digits.";
+    }
+
+    // Email validation
+    if (!email) {
+      newErrors.email = "Email is required!";
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
+    ) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    // Username and password validation
+    if (!username) newErrors.username = "Username is required!";
+    if (!password) newErrors.password = "Password is required!";
+
+    return newErrors;
   };
 
   const handleSave = async (e) => {

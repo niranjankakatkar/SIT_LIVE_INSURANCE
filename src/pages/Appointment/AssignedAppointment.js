@@ -45,9 +45,9 @@ function Appointment() {
         // Handle error cases
         console.error(data.message);
       }
+      setFilteredAppointments(data);
     };
     getAppointmentList();
-    
   }, [status]);
 
   useEffect(() => {
@@ -85,7 +85,7 @@ function Appointment() {
   // Pagination logic
   const indexOfLastAppointment = currentPage * itemsPerPage;
   const indexOfFirstAppointment = indexOfLastAppointment - itemsPerPage;
-  const currentAppointments = appointment.slice(
+  const currentAppointments = filteredAppointments.slice(
     indexOfFirstAppointment,
     indexOfLastAppointment
   );
@@ -109,7 +109,7 @@ function Appointment() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <a href="appointments.html">Appointment</a>
+                      <Link to="/assignedappointments/status">Appointment</Link>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
@@ -703,17 +703,31 @@ function Appointment() {
                           ))}
                         </tbody>
                       </table>
-                      {/* Pagination Component */}
                       <div
-                        className="pagination"
+                        className="pagination-container"
                         style={{
                           display: "flex",
-                          justifyContent: "flex-end",
+                          justifyContent: "space-between",
                           alignItems: "center",
                           textAlign: "center",
                           marginTop: "20px",
+                          padding: "10px",
                         }}
                       >
+                        {/* Entry Range Display */}
+                        <div
+                          className="entry-range"
+                          style={{ fontSize: "14px", color: "#555" }}
+                        >
+                          {filteredAppointments.length === 0
+                            ? "No entries"
+                            : `${indexOfFirstAppointment + 1} - ${Math.min(
+                                indexOfLastAppointment,
+                                filteredAppointments.length
+                              )} of ${filteredAppointments.length} entries`}
+                        </div>
+
+                        {/* Pagination Component */}
                         <Pagination
                           count={totalPages}
                           page={currentPage}

@@ -134,7 +134,7 @@ function Appointment() {
                       <div class="row align-items-center">
                         <div class="col">
                           <div class="doctor-table-blk">
-                            <h3>Appointment</h3>
+                            <h3>Appointment Report</h3>
                             <div class="doctor-search-blk">
                               <div class="top-nav-search table-search-blk">
                                 <form>

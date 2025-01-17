@@ -22,7 +22,7 @@ const AddLaboratory = () => {
   });
 
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
 
   const navigate = useNavigate();
@@ -32,6 +32,10 @@ const AddLaboratory = () => {
     setFormData({
       ...formData,
       [name]: value,
+    });
+    setErrors({
+      ...errors,
+      [name]: "", // Clear error for the field being edited
     });
   };
 
@@ -53,55 +57,96 @@ const AddLaboratory = () => {
       client_address,
     } = formData;
 
-    if (
-      !title ||
-      !country ||
-      !state ||
-      !city ||
-      !address ||
-      !pincode ||
-      !name ||
-      !mobileno ||
-      !email ||
-      !username ||
-      !password ||
-      !client_name ||
-      !client_email ||
-      !client_address
-    ) {
-      return "All fields are required!";
+    const newErrors = {};
+
+    // Name validation (letters and spaces only)
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!name) {
+      newErrors.name = "Name is required!";
+    } else if (!nameRegex.test(name)) {
+      newErrors.name = "Name must contain only letters and spaces.";
     }
 
-    // Pincode validation
-    if (isNaN(pincode) || pincode.length !== 6) {
-      return "Pincode must be a 6-digit number.";
+    // Client Name validation (letters and spaces only)
+    if (!client_name) {
+      newErrors.client_name = "Client name is required!";
+    } else if (!nameRegex.test(client_name)) {
+      newErrors.client_name =
+        "Client name must contain only letters and spaces.";
     }
 
     // Mobile number validation
-    if (isNaN(mobileno) || mobileno.length !== 10) {
-      return "Mobile number must be a 10-digit number.";
+    if (!mobileno) {
+      newErrors.mobileno = "Mobile number is required!";
+    } else if (!/^[0-9]{10}$/.test(mobileno)) {
+      newErrors.mobileno = "Mobile number must be 10 digits.";
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email) || !emailRegex.test(client_email)) {
-      return "Please enter valid email addresses.";
+    if (!email) {
+      newErrors.email = "Email is required!";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address.";
     }
 
-    return null;
+    // Client email validation
+    if (!client_email) {
+      newErrors.client_email = "Client email is required!";
+    } else if (!emailRegex.test(client_email)) {
+      newErrors.client_email = "Please enter a valid client email address.";
+    }
+
+    // Username and password validation
+    if (!username) newErrors.username = "Username is required!";
+    if (!password) newErrors.password = "Password is required!";
+
+    // Pincode validation
+    if (!pincode) {
+      newErrors.pincode = "Pincode is required!";
+    } else if (isNaN(pincode) || pincode.length !== 6) {
+      newErrors.pincode = "Pincode must be a 6-digit number.";
+    }
+
+    // Address validation
+    if (!address) {
+      newErrors.address = "Address is required!";
+    }
+
+    // Title validation (no special characters)
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    if (!title) {
+      newErrors.title = "Title is required!";
+    } else if (specialCharRegex.test(title)) {
+      newErrors.title = "Title should not contain special characters.";
+    }
+
+    // Client address validation (no special characters)
+    if (!client_address) {
+      newErrors.client_address = "Client address is required!";
+    } else if (specialCharRegex.test(client_address)) {
+      newErrors.client_address =
+        "Client address should not contain special characters.";
+    }
+
+    // Country, State, City validation (required)
+    if (!country) newErrors.country = "Country is required!";
+    if (!state) newErrors.state = "State is required!";
+    if (!city) newErrors.city = "City is required!";
+
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    setError("");
 
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
+    const validationErrors = validateForm();
+    console.log(validationErrors); // Log the validation errors to the console
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
-
     try {
       const response = await axios.post(
         "http://3.109.174.127:3005/addLaboratory",
@@ -135,7 +180,10 @@ const AddLaboratory = () => {
         navigate("/laboratory");
       }, 4000);
     } catch (err) {
-      setError(err.response?.data || "Failed to add laboratory");
+      setMessage("");
+      setErrors({
+        form: err.response?.data || "Failed to add Diagnostic Centre",
+      });
     }
   };
 
@@ -158,7 +206,7 @@ const AddLaboratory = () => {
               paddingBottom: "10px",
             }}
           >
-            Add Laboratory
+            Add Diagnostic Centre
           </h2>
 
           <form
@@ -233,12 +281,17 @@ const AddLaboratory = () => {
                     }}
                   />
                 )}
+                {errors[field.name] && (
+                  <span style={{ color: "red", fontSize: "12px" }}>
+                    {errors[field.name]}
+                  </span>
+                )}
               </div>
             ))}
 
             {/* Client Information Section */}
             <h3 style={{ width: "100%", marginTop: "20px" }}>
-              Owner Information
+              Client Information
             </h3>
             {[
               { name: "client_name", type: "text", placeholder: "Client Name" },
@@ -256,11 +309,8 @@ const AddLaboratory = () => {
               <div
                 key={field.name}
                 style={{
-                  flex:
-                    field.name === "client_address"
-                      ? "1 1 100%"
-                      : "1 1 calc(33.33% - 20px)",
-                  minWidth: field.name === "client_address" ? "100%" : "200px",
+                  flex: "1 1 calc(33.33% - 20px)",
+                  minWidth: "200px",
                   display: "flex",
                   flexDirection: "column",
                   gap: "5px",
@@ -298,110 +348,77 @@ const AddLaboratory = () => {
                     }}
                   />
                 )}
+                {errors[field.name] && (
+                  <span style={{ color: "red", fontSize: "12px" }}>
+                    {errors[field.name]}
+                  </span>
+                )}
               </div>
             ))}
 
             {/* Submit Button */}
-            <div
+          <div>
+          <button
+              type="submit"
               style={{
-                width: "100%",
-                textAlign: "center",
-                marginTop: "20px",
+                padding: "12px 30px",
+                backgroundColor: "#2E37A4",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "16px",
               }}
             >
-              <button
-                type="submit"
-                style={{
-                  padding: "12px 30px",
-                  backgroundColor: "#2E37A4",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                }}
-              >
-                Add Laboratory
-              </button>
-            </div>
+              Add Diagnostic Centre
+            </button>
+          </div>
           </form>
-
-          {/* Success Modal */}
-          {showModal && (
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 1000,
-              }}
-            >
-              <div
-                style={{
-                  backgroundColor: "#fff",
-                  padding: "30px",
-                  borderRadius: "10px",
-                  textAlign: "center",
-                  boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-                  maxWidth: "500px", // Max width for larger screens
-                  width: "90%", // 90% width for smaller screens
-                  transition: "all 0.3s ease", // Smooth transition for resizing
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom: "20px",
-                    color: "#4e73df",
-                    fontSize: "24px", // Responsive font size
-                  }}
-                >
-                  Laboratory Added Successfully!
-                </h3>
-                <button
-                  onClick={handleCloseModal}
-                  style={{
-                    padding: "8px 16px",
-                    fontSize: "1rem",
-                    backgroundColor: "#4e73df",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    transition: "background-color 0.3s ease", // Smooth hover effect
-                  }}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
         </div>
-        <footer
+      </div>
+
+      {/* Success Modal */}
+      {showModal && (
+        <div
           style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            backgroundColor: "#f1f1f1",
-            textAlign: "center",
-            fontSize: "14px",
+            position: "fixed",
+            top: "0",
+            left: "0",
+            right: "0",
+            bottom: "0",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          © {new Date().getFullYear()}{" "}
-          <a
-            href="https://sitsolutions.co.in/"
-            target="_blank"
-            rel="noopener noreferrer"
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "30px",
+              borderRadius: "8px",
+              textAlign: "center",
+              maxWidth: "400px",
+            }}
           >
-            S IT Solutions Pvt. Ltd.
-          </a>{" "}
-          All Rights Reserved.
-        </footer>
-      </div>
+            <h3>Diagnostic Centre Added Successfully!</h3>
+            <button
+              onClick={handleCloseModal}
+              style={{
+                marginTop: "20px",
+                padding: "10px 20px",
+                backgroundColor: "#4CAF50",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

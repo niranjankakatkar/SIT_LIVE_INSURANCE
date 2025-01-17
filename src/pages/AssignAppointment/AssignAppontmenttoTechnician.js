@@ -4,7 +4,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import React, { useEffect, useState } from "react";
-import Navbar from "../navBar";
 import {
   Dialog,
   DialogActions,
@@ -20,6 +19,7 @@ import {
   Pagination,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+import NavBar from "../navBar";
 
 function Assistant() {
   const [appointment, setAppointmentList] = useState([]);
@@ -29,7 +29,7 @@ function Assistant() {
   const [showDeleteModal, setShowDeleteModal] = useState(false); // Track delete modal
   const [deleteId, setDeleteId] = useState(null);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [pincode, setPincode] = useState(""); // Track the search query
+  const [searchQuery, setSearchQuery] = useState(""); // Track the search query
 
   const itemsPerPage = 5; // Number of items per page
 
@@ -75,19 +75,22 @@ function Assistant() {
     setShowAppointmentDetails(false);
   };
 
-  // Function to handle pincode input change
-  const handlePincodeChange = (event) => {
-    setPincode(event.target.value);
-  };
+  const handleSearchChange = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
 
-  const fetchAppointmentsByPincode = async () => {
-    if (pincode) {
-      const res = await fetch(
-        `http://3.109.174.127:3005/getassistantbypincode?pincode=${pincode}`
+    // Filter appointments based on search query
+    const filtered = appointment.filter((appointment) => {
+      return (
+        appointment.name.toLowerCase().includes(query) ||
+        appointment.mobileno.toLowerCase().includes(query) ||
+        appointment.email.toLowerCase().includes(query) ||
+        appointment.username.toLowerCase().includes(query) ||
+        appointment.password.toLowerCase().includes(query)
       );
-      const data = await res.json();
-      setFilteredAppointments(data);
-    }
+    });
+
+    setFilteredAppointments(filtered);
   };
 
   // Pagination logic
@@ -127,6 +130,7 @@ function Assistant() {
         setShowDeleteModal(false);
         setDeleteId(null);
         console.log("Assistant deleted successfully");
+        window.location.reload();
       } else {
         console.error("Failed to delete assistant");
       }
@@ -144,7 +148,7 @@ function Assistant() {
   return (
     <div>
       <div class="main-wrapper">
-        <Navbar />
+        <NavBar />
 
         <div class="page-wrapper">
           <div class="content">
@@ -153,7 +157,7 @@ function Assistant() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <Link to="/assistantreport">Technician</Link>
+                      <Link to="/assistant">Technician</Link>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
@@ -172,16 +176,16 @@ function Assistant() {
                       <div class="row align-items-center">
                         <div class="col">
                           <div class="doctor-table-blk">
-                            <h3>Technician Report</h3>
+                            <h3>Technician</h3>
                             <div class="doctor-search-blk">
                               <div class="top-nav-search table-search-blk">
                                 <form>
                                   <input
                                     type="text"
                                     class="form-control"
-                                    placeholder="Enter Pincode"
-                                    value={pincode}
-                                    onChange={handlePincodeChange}
+                                    placeholder="Search here"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
                                   />
                                   <a class="btn">
                                     <img
@@ -192,14 +196,14 @@ function Assistant() {
                                 </form>
                               </div>
                               <div class="add-group">
-                                <a
-                                  //   href="add-appointment.html"
-                                  onClick={fetchAppointmentsByPincode}
+                                <Link
+                                  to="/addassistant"
+                                  style={{ textDecoration: "none" }}
                                   class="btn btn-primary add-pluss ms-2"
                                 >
-                                  Search
-                                </a>
-                                <a
+                                  <img src="assets/img/icons/plus.svg" alt="" />
+                                </Link>
+                                {/* <a
                                   href="javascript:;"
                                   class="btn btn-primary doctor-refresh ms-2"
                                 >
@@ -207,7 +211,7 @@ function Assistant() {
                                     src="assets/img/icons/re-fresh.svg"
                                     alt=""
                                   />
-                                </a>
+                                </a> */}
                               </div>
                             </div>
                           </div>
@@ -256,7 +260,9 @@ function Assistant() {
                                   padding: "16px",
                                 }}
                               >
-                                <Typography variant="h6">Assistants</Typography>
+                                <Typography variant="h6">
+                                  Technicians
+                                </Typography>
                               </DialogTitle>
 
                               <DialogContent sx={{ padding: "16px" }}>
@@ -355,22 +361,22 @@ function Assistant() {
                       </div>
                     </div>
 
-                    <div
+                    {/* <div
                       style={{
                         display: "flex",
                         justifyContent: "flex-end",
                         padding: "10px",
                       }}
                     >
-                      {/* <Link
+                      <Link
                         to="/addassistant"
                         style={{ textDecoration: "none" }}
                       >
                         <Button variant="contained" color="primary">
-                          Add Assistant
+                          Add Technician
                         </Button>
-                      </Link> */}
-                    </div>
+                      </Link>
+                    </div> */}
 
                     <div class="table-responsive">
                       <table
@@ -435,15 +441,6 @@ function Assistant() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Pincode
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
                               Username
                             </th>
                             <th
@@ -496,9 +493,6 @@ function Assistant() {
                                 {getcate.email}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
-                                {getcate.pincode}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
                                 {getcate.username}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
@@ -513,70 +507,20 @@ function Assistant() {
                                   justifyContent: "center",
                                 }}
                               >
-                                <div className="dropdown dropdown-action">
-                                  <a
-                                    href="#"
-                                    className="action-icon dropdown-toggle"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                    style={{
-                                      fontSize: "16px",
-                                      color: "#333",
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    <i className="fa fa-ellipsis-v"></i>
-                                  </a>
-                                  <div className="dropdown-menu dropdown-menu-end">
-                                    <a
-                                      className="dropdown-item"
-                                      onClick={() => handleViewDetails(getcate)}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      <VisibilityIcon
-                                        style={{ marginRight: "8px" }}
-                                      />
-                                      View
-                                    </a>
-                                    <Link
-                                      to={`/edit-assistant/${getcate.assistant_id}`}
-                                      className="dropdown-item"
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        textDecoration: "none",
-                                        color: "inherit",
-                                      }}
-                                    >
-                                      <EditIcon
-                                        style={{ marginRight: "8px" }}
-                                      />
-                                      Edit
-                                    </Link>
-
-                                    <a
-                                      className="dropdown-item"
-                                      // href="#"
-                                      // data-bs-toggle="modal"
-                                      // data-bs-target="#delete_patient"
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                      }}
-                                      onClick={() =>
-                                        handleDeleteClick(getcate.assistant_id)
-                                      }
-                                    >
-                                      <DeleteIcon
-                                        style={{ marginRight: "8px" }}
-                                      />
-                                      Delete
-                                    </a>
-                                  </div>
-                                </div>
+                                <Link
+                                  to={`/selectappointment/${getcate.assistant_id}`} // Navigate to the new page with the ID
+                                  style={{
+                                    padding: "8px 15px",
+                                    backgroundColor: "#2E37A4",
+                                    color: "#fff",
+                                    textDecoration: "none",
+                                    borderRadius: "4px",
+                                    fontWeight: "bold",
+                                    marginRight: "10px",
+                                  }}
+                                >
+                                  Assign Appointment
+                                </Link>
                               </td>
                             </tr>
                           ))}
@@ -626,7 +570,7 @@ function Assistant() {
           <Dialog open={showDeleteModal} onClose={cancelDelete}>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete this laboratory?
+              Are you sure you want to delete this Technician?
             </DialogContent>
             <DialogActions>
               <Button onClick={cancelDelete} color="secondary">
@@ -637,245 +581,6 @@ function Assistant() {
               </Button>
             </DialogActions>
           </Dialog>
-
-          <div class="notification-box">
-            <div class="msg-sidebar notifications msg-noti">
-              <div class="topnav-dropdown-header">
-                <span>Messages</span>
-              </div>
-              <div class="drop-scroll msg-list-scroll" id="msg_list">
-                <ul class="list-box">
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Richard Miles </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item new-message">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">John Doe</span>
-                          <span class="message-time">1 Aug</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Tarah Shropshire </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Mike Litorus</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">
-                            {" "}
-                            Catherine Manseau{" "}
-                          </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">D</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Domenic Houston </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">B</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Buster Wigton </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Rolland Webber </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Claire Mapes </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Melita Faucher</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Jeffery Lalor</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">L</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Loren Gatlin</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Tarah Shropshire</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div class="topnav-dropdown-footer">
-                <a href="chat.html">See all messages</a>
-              </div>
-            </div>
-          </div>
 
           <footer
             style={{
@@ -1030,20 +735,6 @@ function Assistant() {
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
                           <strong>Email:</strong> {selectedAppointment.email}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Pincode:</strong>{" "}
-                          {selectedAppointment.pincode}
                         </p>
                       </div>
                     </div>

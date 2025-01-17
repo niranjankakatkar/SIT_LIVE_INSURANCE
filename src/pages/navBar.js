@@ -107,6 +107,26 @@ function NavBar() {
                   <li
                     className="submenu"
                     style={{
+                      backgroundColor: isActive(
+                        "/AssignAppointmentToTechnician"
+                      )
+                        ? "#f0f0f0"
+                        : "",
+                      borderLeft: isActive("/AssignAppointmentToTechnician")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
+                    <Link to="/AssignAppointmentToTechnician">
+                      <span className="menu-side">
+                        <img src="assets/img/icons/menu-icon-04.svg" alt="" />
+                      </span>{" "}
+                      <span> Assign Appointments </span>
+                    </Link>
+                  </li>
+                  <li
+                    className="submenu"
+                    style={{
                       backgroundColor: isActive("/laboratory") ? "#f0f0f0" : "",
                       borderLeft: isActive("/laboratory")
                         ? "5px solid #007bff"
@@ -218,6 +238,22 @@ function NavBar() {
                         <img src="assets/img/icons/menu-icon-01.svg" alt="" />
                       </span>{" "}
                       <span> Dashboard </span>{" "}
+                    </Link>
+                  </li>
+                  <li
+                    className="submenu"
+                    style={{
+                      backgroundColor: isActive("/assistant") ? "#f0f0f0" : "",
+                      borderLeft: isActive("/assistant")
+                        ? "5px solid #007bff"
+                        : "",
+                    }}
+                  >
+                    <Link to="/AssignAppointmentToTechnician">
+                      <span className="menu-side">
+                        <img src="assets/img/icons/menu-icon-04.svg" alt="" />
+                      </span>{" "}
+                      <span> Assign Appointment </span>
                     </Link>
                   </li>
                   <li

@@ -26,6 +26,8 @@ import EditProfile from "./pages/Profile/EditProfile";
 import AppointmentReport from "./pages/Reports/AppointmentReport";
 import DiagnosticReport from "./pages/Reports/DiagnosticReport";
 import AssistantReport from "./pages/Reports/AssistantReport";
+import AssignAppointmentToTechnician from "./pages/AssignAppointment/AssignAppontmenttoTechnician";
+import SelectAppointment from "./pages/AssignAppointment/SelectAppointment";
 function App() {
   return (
     <BrowserRouter>
@@ -65,6 +67,14 @@ function App() {
         ></Route>
         <Route path="/diagnosticreport" element={<DiagnosticReport />}></Route>
         <Route path="/assistantreport" element={<AssistantReport />}></Route>
+        <Route
+          path="/AssignAppointmentToTechnician"
+          element={<AssignAppointmentToTechnician />}
+        ></Route>
+        <Route
+          path="/selectappointment/:id"
+          element={<SelectAppointment />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );

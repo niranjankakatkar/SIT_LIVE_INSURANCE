@@ -1,8 +1,6 @@
-// Code by Prajwal Punekar
-
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom";
 import Navbar from "../navBar";
 
 const AddAssistant = () => {
@@ -14,11 +12,11 @@ const AddAssistant = () => {
     password: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
+  const [showModal, setShowModal] = useState(false);
 
-  const navigate = useNavigate(); // Use navigate for navigation
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,52 +24,66 @@ const AddAssistant = () => {
       ...formData,
       [name]: value,
     });
+    setErrors({
+      ...errors,
+      [name]: "", // Clear error for the field being edited
+    });
   };
 
   const validateForm = () => {
     const { name, mobileno, email, username, password } = formData;
+    const newErrors = {};
 
-    if (!name || !mobileno || !email || !username || !password) {
-      return "All fields are required!";
+    // Name validation (letters and spaces only)
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!name) {
+      newErrors.name = "Name is required!";
+    } else if (!nameRegex.test(name)) {
+      newErrors.name = "Name must contain only letters and spaces.";
     }
 
-    // Mobile number validation (assuming a valid mobile number format)
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(mobileno)) {
-      return "Mobile number must be 10 digits.";
+    // Mobile number validation
+    if (!mobileno) {
+      newErrors.mobileno = "Mobile number is required!";
+    } else if (!/^[0-9]{10}$/.test(mobileno)) {
+      newErrors.mobileno = "Mobile number must be 10 digits.";
     }
 
-    // Email validation (basic email format)
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      return "Please enter a valid email address.";
+    // Email validation
+    if (!email) {
+      newErrors.email = "Email is required!";
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
+    ) {
+      newErrors.email = "Please enter a valid email address.";
     }
 
-    return null;
+    // Username and password validation
+    if (!username) newErrors.username = "Username is required!";
+    if (!password) newErrors.password = "Password is required!";
+
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    setError("");
 
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     try {
       const response = await axios.post(
-        "http://3.109.174.127:3005/addAssistant", // Updated API endpoint
+        "http://3.109.174.127:3005/addAssistant",
         formData
       );
       setMessage(response.data);
 
-      // Show modal after success
       setShowModal(true);
 
-      // Reset the form after submission
       setFormData({
         name: "",
         mobileno: "",
@@ -80,19 +92,18 @@ const AddAssistant = () => {
         password: "",
       });
 
-      // Navigate to the Assistant page after 2 seconds (to give time for the modal to show)
       setTimeout(() => {
-        navigate("/assistant"); // Navigate to the assistant page
+        navigate("/assistant");
       }, 4000);
     } catch (err) {
-      setError(err.response?.data || "Failed to add assistant");
+      setMessage("");
+      setErrors({ form: err.response?.data || "Failed to add assistant" });
     }
   };
 
-  // Close the modal and navigate to the Assistant page
   const handleCloseModal = () => {
     setShowModal(false);
-    navigate("/assistant"); // Navigate to the assistant page when closing the modal
+    navigate("/assistant");
   };
 
   return (
@@ -100,8 +111,13 @@ const AddAssistant = () => {
       <Navbar />
 
       <div className="page-wrapper" style={{ marginTop: "50px" }}>
-        {/* Main Content */}
-        <div style={{ flex: 1, padding: "20px", backgroundColor: "#fff" }}>
+        <div
+          style={{
+            flex: 1,
+            padding: "20px",
+            backgroundColor: "#fff",
+          }}
+        >
           <h2
             style={{
               fontSize: "28px",
@@ -110,10 +126,9 @@ const AddAssistant = () => {
               paddingBottom: "10px",
             }}
           >
-            Add Assistant
+            Add Technician
           </h2>
 
-          {/* Form Section */}
           <form
             onSubmit={handleSubmit}
             style={{
@@ -123,36 +138,17 @@ const AddAssistant = () => {
               maxWidth: "100%",
             }}
           >
-            {/* First Row: 2 Fields */}
             {[
-              { name: "name", type: "text", placeholder: "Name", row: 1 },
-              {
-                name: "mobileno",
-                type: "text",
-                placeholder: "Mobile No.",
-                row: 1,
-              },
-              { name: "email", type: "email", placeholder: "Email", row: 2 },
-              {
-                name: "username",
-                type: "text",
-                placeholder: "Username",
-                row: 2,
-              },
-              {
-                name: "password",
-                type: "password",
-                placeholder: "Password",
-                row: 2,
-              },
+              { name: "name", type: "text", placeholder: "Name" },
+              { name: "mobileno", type: "text", placeholder: "Mobile No." },
+              { name: "email", type: "email", placeholder: "Email" },
+              { name: "username", type: "text", placeholder: "Username" },
+              { name: "password", type: "password", placeholder: "Password" },
             ].map((field) => (
               <div
                 key={field.name}
                 style={{
-                  flex:
-                    field.row === 2
-                      ? "1 1 calc(50% - 20px)"
-                      : "1 1 calc(50% - 20px)",
+                  flex: "1 1 calc(50% - 20px)",
                   minWidth: "200px",
                   display: "flex",
                   flexDirection: "column",
@@ -173,16 +169,16 @@ const AddAssistant = () => {
                     fontSize: "14px",
                   }}
                 />
+                {errors[field.name] && (
+                  <span style={{ color: "red", fontSize: "12px" }}>
+                    {errors[field.name]}
+                  </span>
+                )}
               </div>
             ))}
 
-            {/* Submit Button */}
             <div
-              style={{
-                width: "100%",
-                textAlign: "center",
-                marginTop: "20px",
-              }}
+              style={{ width: "100%", textAlign: "center", marginTop: "20px" }}
             >
               <button
                 type="submit"
@@ -196,12 +192,11 @@ const AddAssistant = () => {
                   fontSize: "16px",
                 }}
               >
-                Add Assistant
+                Add Technician
               </button>
             </div>
           </form>
 
-          {/* Success/Error Message */}
           {message && (
             <p
               style={{ color: "green", textAlign: "center", marginTop: "20px" }}
@@ -209,15 +204,14 @@ const AddAssistant = () => {
               {message}
             </p>
           )}
-          {error && (
+          {errors.form && (
             <p style={{ color: "red", textAlign: "center", marginTop: "20px" }}>
-              {error}
+              {errors.form}
             </p>
           )}
         </div>
       </div>
 
-      {/* Modal for successful addition */}
       {showModal && (
         <div
           style={{
@@ -242,10 +236,10 @@ const AddAssistant = () => {
               width: "100%",
             }}
           >
-            <h3>Assistant Added Successfully!</h3>
-            <p>Your assistant has been added successfully.</p>
+            <h3>Technician Added Successfully!</h3>
+            <p>Your technician has been added successfully.</p>
             <button
-              onClick={handleCloseModal} // Call the function to close the modal and navigate
+              onClick={handleCloseModal}
               style={{
                 padding: "10px 20px",
                 backgroundColor: "#2E37A4",

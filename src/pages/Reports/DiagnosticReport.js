@@ -160,7 +160,7 @@ function Laboratory() {
                       <i class="feather-chevron-right"></i>
                     </li>
                     <li class="breadcrumb-item active">
-                      Diagnoastic Centre List
+                      Diagnostic Centre List
                     </li>
                   </ul>
                 </div>
@@ -175,7 +175,7 @@ function Laboratory() {
                       <div class="row align-items-center">
                         <div class="col">
                           <div class="doctor-table-blk">
-                            <h3>Diagnoastic Centre</h3>
+                            <h3>Diagnoastic Centre Report</h3>
                             <div class="doctor-search-blk">
                               <div class="top-nav-search table-search-blk">
                                 <form>

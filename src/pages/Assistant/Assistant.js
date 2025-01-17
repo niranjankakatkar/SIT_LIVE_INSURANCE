@@ -130,6 +130,7 @@ function Assistant() {
         setShowDeleteModal(false);
         setDeleteId(null);
         console.log("Assistant deleted successfully");
+        window.location.reload();
       } else {
         console.error("Failed to delete assistant");
       }
@@ -259,7 +260,9 @@ function Assistant() {
                                   padding: "16px",
                                 }}
                               >
-                                <Typography variant="h6">Assistants</Typography>
+                                <Typography variant="h6">
+                                  Technicians
+                                </Typography>
                               </DialogTitle>
 
                               <DialogContent sx={{ padding: "16px" }}>
@@ -370,7 +373,7 @@ function Assistant() {
                         style={{ textDecoration: "none" }}
                       >
                         <Button variant="contained" color="primary">
-                          Add Assistant
+                          Add Technician
                         </Button>
                       </Link>
                     </div>
@@ -617,7 +620,7 @@ function Assistant() {
           <Dialog open={showDeleteModal} onClose={cancelDelete}>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete this laboratory?
+              Are you sure you want to delete this Technician?
             </DialogContent>
             <DialogActions>
               <Button onClick={cancelDelete} color="secondary">

@@ -281,7 +281,7 @@ function Home() {
                             <th>Patient Name</th>
                             <th>Mobile No</th>
                             <th>Date of Birth</th>
-                            <th>Treatment</th>
+                            <th>Medical test Details</th>
                             {/* <th>Triage</th> */}
                             <th></th>
                           </tr>
