@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
-function Assistant() {
+function Laboratory() {
   const [appointment, setAppointmentList] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showAppointmentDetails, setShowAppointmentDetails] = useState(false); // Track showing details
@@ -35,7 +35,7 @@ function Assistant() {
 
   useEffect(() => {
     const getAppointmentList = async () => {
-      const res = await fetch("http://3.109.174.127:3005/getAllassistant");
+      const res = await fetch("http://3.109.174.127:3005/getAllSubadmin");
       const getData = await res.json();
       setAppointmentList(getData);
       setFilteredAppointments(getData);
@@ -83,10 +83,17 @@ function Assistant() {
     const filtered = appointment.filter((appointment) => {
       return (
         appointment.name.toLowerCase().includes(query) ||
+        appointment.mname.toLowerCase().includes(query) ||
+        appointment.lname.toLowerCase().includes(query) ||
+        appointment.country.toLowerCase().includes(query) ||
+        appointment.state.toLowerCase().includes(query) ||
+        appointment.city.toLowerCase().includes(query) ||
+        appointment.pincode.toLowerCase().includes(query) ||
+        appointment.address.toLowerCase().includes(query) ||
+        appointment.state.toLowerCase().includes(query) ||
         appointment.mobileno.toLowerCase().includes(query) ||
         appointment.email.toLowerCase().includes(query) ||
-        appointment.username.toLowerCase().includes(query) ||
-        appointment.password.toLowerCase().includes(query)
+        appointment.username.toLowerCase().includes(query)
       );
     });
 
@@ -100,6 +107,7 @@ function Assistant() {
     indexOfFirstAppointment,
     indexOfLastAppointment
   );
+
   // Handle page change
   const paginate = (event, value) => {
     setCurrentPage(value);
@@ -118,21 +126,21 @@ function Assistant() {
   const confirmDelete = async () => {
     try {
       const res = await fetch(
-        `http://3.109.174.127:3005/deleteAssistant/${deleteId}`,
+        `http://3.109.174.127:3005/deleteSubadmin/${deleteId}`,
         {
           method: "DELETE",
         }
       );
       if (res.ok) {
         setAppointmentList((prev) =>
-          prev.filter((item) => item.assistant_id !== deleteId)
+          prev.filter((item) => item.subadmin_id !== deleteId)
         );
         setShowDeleteModal(false);
         setDeleteId(null);
-        console.log("Assistant deleted successfully");
+        console.log("Subadmin deleted successfully");
         window.location.reload();
       } else {
-        console.error("Failed to delete assistant");
+        console.error("Failed to delete subadmin");
       }
     } catch (error) {
       console.error("Error deleting assistant:", error);
@@ -157,12 +165,12 @@ function Assistant() {
                 <div class="col-sm-12">
                   <ul class="breadcrumb">
                     <li class="breadcrumb-item">
-                      <Link to="/assistant">Technician</Link>
+                      <Link to="/subadmin">Subadmin</Link>
                     </li>
                     <li class="breadcrumb-item">
                       <i class="feather-chevron-right"></i>
                     </li>
-                    <li class="breadcrumb-item active">Technician List</li>
+                    <li class="breadcrumb-item active">Sub-Admin List</li>
                   </ul>
                 </div>
               </div>
@@ -176,7 +184,7 @@ function Assistant() {
                       <div class="row align-items-center">
                         <div class="col">
                           <div class="doctor-table-blk">
-                            <h3>Technician</h3>
+                            <h3>Sub-admin</h3>
                             <div class="doctor-search-blk">
                               <div class="top-nav-search table-search-blk">
                                 <form>
@@ -197,7 +205,7 @@ function Assistant() {
                               </div>
                               <div class="add-group">
                                 <Link
-                                  to="/addassistant"
+                                  to="/addSubadmin"
                                   style={{ textDecoration: "none" }}
                                   class="btn btn-primary add-pluss ms-2"
                                 >
@@ -260,9 +268,7 @@ function Assistant() {
                                   padding: "16px",
                                 }}
                               >
-                                <Typography variant="h6">
-                                  Technicians
-                                </Typography>
+                                <Typography variant="h6">Subadmin</Typography>
                               </DialogTitle>
 
                               <DialogContent sx={{ padding: "16px" }}>
@@ -278,8 +284,65 @@ function Assistant() {
                                           color: "#2E37A4",
                                         }}
                                       >
-                                        Name
+                                        First Name
                                       </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Middle Name
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Last Name
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Country
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        State
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        City
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Pincode
+                                      </TableCell>
+                                      <TableCell
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "#2E37A4",
+                                        }}
+                                      >
+                                        Address
+                                      </TableCell>
+
                                       <TableCell
                                         sx={{
                                           fontWeight: "bold",
@@ -321,6 +384,28 @@ function Assistant() {
                                           {appointment.name}
                                         </TableCell>
                                         <TableCell>
+                                          {appointment.mname}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.lname}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.country}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.state}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.city}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.pincode}
+                                        </TableCell>
+                                        <TableCell>
+                                          {appointment.address}
+                                        </TableCell>
+
+                                        <TableCell>
                                           {appointment.mobileno}
                                         </TableCell>
                                         <TableCell>
@@ -328,9 +413,9 @@ function Assistant() {
                                         </TableCell>
                                         <TableCell>
                                           {appointment.username}
-                                        </TableCell>
-                                        <TableCell>
-                                          {appointment.password}
+                                          <TableCell>
+                                            {appointment.password}
+                                          </TableCell>
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -369,11 +454,11 @@ function Assistant() {
                       }}
                     >
                       <Link
-                        to="/addassistant"
+                        to="/addSubadmin"
                         style={{ textDecoration: "none" }}
                       >
                         <Button variant="contained" color="primary">
-                          Add Technician
+                          Add Subadmin
                         </Button>
                       </Link>
                     </div>
@@ -414,8 +499,72 @@ function Assistant() {
                                 padding: "12px 15px",
                               }}
                             >
-                              Name
+                              First Name
                             </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Middle Name
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Last Name
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Country
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              State
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              City
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Pincode
+                            </th>
+                            <th
+                              style={{
+                                fontWeight: "bold",
+                                color: "#2E37A4",
+                                padding: "12px 15px",
+                              }}
+                            >
+                              Address
+                            </th>
+
                             <th
                               style={{
                                 fontWeight: "bold",
@@ -433,15 +582,6 @@ function Assistant() {
                               }}
                             >
                               Email
-                            </th>
-                            <th
-                              style={{
-                                fontWeight: "bold",
-                                color: "#2E37A4",
-                                padding: "12px 15px",
-                              }}
-                            >
-                              Pincode
                             </th>
                             <th
                               style={{
@@ -496,13 +636,32 @@ function Assistant() {
                                 {getcate.name}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
+                                {getcate.mname}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.lname}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.country}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.state}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.city}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.pincode}
+                              </td>
+                              <td style={{ padding: "12px 15px" }}>
+                                {getcate.address}
+                              </td>
+
+                              <td style={{ padding: "12px 15px" }}>
                                 {getcate.mobileno}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.email}
-                              </td>
-                              <td style={{ padding: "12px 15px" }}>
-                                {getcate.pincode}
                               </td>
                               <td style={{ padding: "12px 15px" }}>
                                 {getcate.username}
@@ -548,7 +707,7 @@ function Assistant() {
                                       View
                                     </a>
                                     <Link
-                                      to={`/edit-assistant/${getcate.assistant_id}`}
+                                      to={`/edit-subadmin/${getcate.subadmin_id}`}
                                       className="dropdown-item"
                                       style={{
                                         display: "flex",
@@ -573,7 +732,7 @@ function Assistant() {
                                         alignItems: "center",
                                       }}
                                       onClick={() =>
-                                        handleDeleteClick(getcate.assistant_id)
+                                        handleDeleteClick(getcate.subadmin_id)
                                       }
                                     >
                                       <DeleteIcon
@@ -632,7 +791,7 @@ function Assistant() {
           <Dialog open={showDeleteModal} onClose={cancelDelete}>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete this Technician?
+              Are you sure you want to delete this Subadmin?
             </DialogContent>
             <DialogActions>
               <Button onClick={cancelDelete} color="secondary">
@@ -643,245 +802,6 @@ function Assistant() {
               </Button>
             </DialogActions>
           </Dialog>
-
-          <div class="notification-box">
-            <div class="msg-sidebar notifications msg-noti">
-              <div class="topnav-dropdown-header">
-                <span>Messages</span>
-              </div>
-              <div class="drop-scroll msg-list-scroll" id="msg_list">
-                <ul class="list-box">
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Richard Miles </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item new-message">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">John Doe</span>
-                          <span class="message-time">1 Aug</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Tarah Shropshire </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Mike Litorus</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">
-                            {" "}
-                            Catherine Manseau{" "}
-                          </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">D</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Domenic Houston </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">B</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Buster Wigton </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">R</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Rolland Webber </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">C</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author"> Claire Mapes </span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">M</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Melita Faucher</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">J</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Jeffery Lalor</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">L</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Loren Gatlin</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="chat.html">
-                      <div class="list-item">
-                        <div class="list-left">
-                          <span class="avatar">T</span>
-                        </div>
-                        <div class="list-body">
-                          <span class="message-author">Tarah Shropshire</span>
-                          <span class="message-time">12:28 AM</span>
-                          <div class="clearfix"></div>
-                          <span class="message-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                          </span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div class="topnav-dropdown-footer">
-                <a href="chat.html">See all messages</a>
-              </div>
-            </div>
-          </div>
 
           <footer
             style={{
@@ -964,7 +884,7 @@ function Assistant() {
                   }}
                 >
                   <i className="fa-solid fa-calendar-check me-2"></i>
-                  Assistant Details
+                  Sudadmin Details
                 </h5>
                 <button
                   type="button"
@@ -994,8 +914,8 @@ function Assistant() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Assistant No:</strong>{" "}
-                          {selectedAppointment.lab_id}
+                          <strong>laboratory No:</strong>{" "}
+                          {selectedAppointment.subadmin_id}
                         </p>
                       </div>
                     </div>
@@ -1008,11 +928,109 @@ function Assistant() {
                         }}
                       >
                         <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Name:</strong> {selectedAppointment.name}
+                          <strong>First Name:</strong>{" "}
+                          {selectedAppointment.name}
                         </p>
                       </div>
                     </div>
                     <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Middle name:</strong>{" "}
+                          {selectedAppointment.mname}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Last Name:</strong>{" "}
+                          {selectedAppointment.lname}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Country:</strong>{" "}
+                          {selectedAppointment.country}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>State:</strong> {selectedAppointment.state}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>City:</strong> {selectedAppointment.city}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Pincode:</strong>{" "}
+                          {selectedAppointment.pincode}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
+                      <div
+                        className="p-3 rounded"
+                        style={{
+                          backgroundColor: "#e7f1ff",
+                          borderLeft: "4px solid #4e73df",
+                        }}
+                      >
+                        <p style={{ margin: 0, color: "#4e73df" }}>
+                          <strong>Address:</strong>{" "}
+                          {selectedAppointment.address}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="col-md-12">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1026,7 +1044,7 @@ function Assistant() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-12">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1039,8 +1057,7 @@ function Assistant() {
                         </p>
                       </div>
                     </div>
-                    
-                    <div className="col-md-6">
+                    <div className="col-md-12">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1054,7 +1071,7 @@ function Assistant() {
                         </p>
                       </div>
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-12">
                       <div
                         className="p-3 rounded"
                         style={{
@@ -1065,19 +1082,6 @@ function Assistant() {
                         <p style={{ margin: 0, color: "#4e73df" }}>
                           <strong>Password:</strong>{" "}
                           {selectedAppointment.password}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-12">
-                      <div
-                        className="p-3 rounded"
-                        style={{
-                          backgroundColor: "#e7f1ff",
-                          borderLeft: "4px solid #4e73df",
-                        }}
-                      >
-                        <p style={{ margin: 0, color: "#4e73df" }}>
-                          <strong>Pincode:</strong> {selectedAppointment.pincode}
                         </p>
                       </div>
                     </div>
@@ -1147,4 +1151,4 @@ function Assistant() {
   );
 }
 
-export default Assistant;
+export default Laboratory;

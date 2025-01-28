@@ -5,52 +5,29 @@ import Navbar from "../navBar";
 
 const Profile = () => {
   const [userDetails, setUserDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUserDetails = sessionStorage.getItem("userDetails");
-    if (storedUserDetails) {
-      try {
-        const parsedDetails = JSON.parse(storedUserDetails);
-        setUserDetails(parsedDetails);
-      } catch (error) {
-        console.error("Failed to parse user details:", error);
-        sessionStorage.removeItem("userDetails"); // Clear invalid data
-      }
-    } else {
-      // Fallback to fetching data from API if not in sessionStorage
-      const fetchUserDetails = async () => {
-        const tokenKey = sessionStorage.getItem("tokenKey");
-        if (!tokenKey) {
-          console.error("Token key is missing");
-          return;
-        }
+    const tokenKey = sessionStorage.getItem("tokenKey");
 
-        try {
-          const response = await axios.get(
-            `http://3.109.174.127:3005/getUserDetails?tokenKey=${tokenKey}`
-          );
-          if (response.data.status === "1") {
-            setUserDetails(response.data.userDetails);
-            sessionStorage.setItem(
-              "userDetails",
-              JSON.stringify(response.data.userDetails)
-            );
-          } else {
-            console.error(
-              "Failed to fetch user details:",
-              response.data.message
-            );
-          }
-        } catch (err) {
-          console.error("Error fetching user details:", err);
-        }
-      };
+    if (tokenKey) {
+      axios
+        .get(`http://3.109.174.127:3005/getUserDetails?tokenKey=${tokenKey}`)
+        .then((response) => {
+          const { userDetails: userData } = response.data;
+          setUserDetails((prevDetails) => ({
+            ...prevDetails,
+            name: userData.name || "",
+            email: userData.email || "",
+            username: userData.username || "",
+          }));
+        })
 
-      fetchUserDetails();
+        .finally(() => setLoading(false));
     }
   }, []);
 
-  if (!userDetails) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 

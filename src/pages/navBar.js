@@ -7,6 +7,7 @@ function NavBar() {
   const location = useLocation();
 
   const [isReportsOpen, setIsReportsOpen] = useState(false);
+  // const [isRolesOpen, setIsRolesOpen] = useState(false);
 
   useEffect(() => {
     const reportPages = [
@@ -20,6 +21,15 @@ function NavBar() {
   const toggleReports = () => {
     setIsReportsOpen((prev) => !prev);
   };
+
+  // useEffect(() => {
+  //   const reportPages = ["/Role", "/permision"];
+  //   setIsReportsOpen(reportPages.includes(location.pathname));
+  // }, [location.pathname]);
+
+  // const toggleRole = () => {
+  //   setIsRolesOpen((prev) => !prev);
+  // };
 
   const isActive = (path) => location.pathname === path;
 
@@ -68,7 +78,7 @@ function NavBar() {
             <ul>
               <li className="menu-title">Main {userRole}</li>
 
-              {userRole === "Admin" && (
+              {(userRole === "Admin" || userRole === "subadmin") && (
                 <>
                   <li
                     className="submenu"
@@ -124,6 +134,25 @@ function NavBar() {
                       <span> Assign Appointments </span>
                     </Link>
                   </li>
+                  {/* Hide Sub-Admin Master for subadmin */}
+                  {userRole === "Admin" && (
+                    <li
+                      className="submenu"
+                      style={{
+                        backgroundColor: isActive("/subadmin") ? "#f0f0f0" : "",
+                        borderLeft: isActive("/subadmin")
+                          ? "5px solid #007bff"
+                          : "",
+                      }}
+                    >
+                      <Link to="/subadmin">
+                        <span className="menu-side">
+                          <img src="assets/img/icons/menu-icon-04.svg" alt="" />
+                        </span>{" "}
+                        <span> Sub-Admin Master </span>
+                      </Link>
+                    </li>
+                  )}
                   <li
                     className="submenu"
                     style={{
@@ -156,6 +185,7 @@ function NavBar() {
                       <span> Technician </span>
                     </Link>
                   </li>
+                  {/* Reports Section */}
                   <li className="submenu">
                     <Link to="#" onClick={toggleReports}>
                       <span className="menu-side">
@@ -220,60 +250,7 @@ function NavBar() {
                     </Link>
                   </li>
                 </>
-              )}
-
-              {userRole === "laboratory" && (
-                <>
-                  <li
-                    className="submenu"
-                    style={{
-                      backgroundColor: isActive("/Dashboard") ? "#f0f0f0" : "",
-                      borderLeft: isActive("/Dashboard")
-                        ? "5px solid #007bff"
-                        : "",
-                    }}
-                  >
-                    <Link to="/Dashboard">
-                      <span className="menu-side">
-                        <img src="assets/img/icons/menu-icon-01.svg" alt="" />
-                      </span>{" "}
-                      <span> Dashboard </span>{" "}
-                    </Link>
-                  </li>
-                  <li
-                    className="submenu"
-                    style={{
-                      backgroundColor: isActive("/assistant") ? "#f0f0f0" : "",
-                      borderLeft: isActive("/assistant")
-                        ? "5px solid #007bff"
-                        : "",
-                    }}
-                  >
-                    <Link to="/AssignAppointmentToTechnician">
-                      <span className="menu-side">
-                        <img src="assets/img/icons/menu-icon-04.svg" alt="" />
-                      </span>{" "}
-                      <span> Assign Appointment </span>
-                    </Link>
-                  </li>
-                  <li
-                    className="submenu"
-                    style={{
-                      backgroundColor: isActive("/assistant") ? "#f0f0f0" : "",
-                      borderLeft: isActive("/assistant")
-                        ? "5px solid #007bff"
-                        : "",
-                    }}
-                  >
-                    <Link to="/assistant">
-                      <span className="menu-side">
-                        <img src="assets/img/icons/menu-icon-04.svg" alt="" />
-                      </span>{" "}
-                      <span> Technician </span>
-                    </Link>
-                  </li>
-                </>
-              )}
+              )}  
             </ul>
 
             <div className="logout-btn">

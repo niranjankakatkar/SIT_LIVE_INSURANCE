@@ -11,6 +11,9 @@ import EditAppointment from "./pages/Appointment/EditAppointment";
 import Laboratory from "./pages/Laboratory/Laboratory";
 import AddLaboratory from "./pages/Laboratory/Addlaboratory";
 import EditLaboratory from "./pages/Laboratory/EditLaboratory";
+import SubAdmin from "./pages/SubAdminMaster/SubAdmin";
+import AddSubadmin from "./pages/SubAdminMaster/AddSubAdmin";
+import Editsubadmin from "./pages/SubAdminMaster/EditSubAdmin";
 import Assistant from "./pages/Assistant/Assistant";
 import AddAssistant from "./pages/Assistant/AddAssistant";
 import EditAssistant from "./pages/Assistant/EditAssistant";
@@ -28,6 +31,7 @@ import DiagnosticReport from "./pages/Reports/DiagnosticReport";
 import AssistantReport from "./pages/Reports/AssistantReport";
 import AssignAppointmentToTechnician from "./pages/AssignAppointment/AssignAppontmenttoTechnician";
 import SelectAppointment from "./pages/AssignAppointment/SelectAppointment";
+
 function App() {
   return (
     <BrowserRouter>
@@ -48,6 +52,9 @@ function App() {
         <Route path="/laboratory" element={<Laboratory />}></Route>
         <Route path="/addLaboratory" element={<AddLaboratory />}></Route>
         <Route path="/edit-laboratory/:id" element={<EditLaboratory />} />
+        <Route path="/subadmin" element={<SubAdmin />}></Route>
+        <Route path="/addSubadmin" element={<AddSubadmin />}></Route>
+        <Route path="/edit-subadmin/:id" element={<Editsubadmin />} />
         <Route path="/assistant" element={<Assistant />}></Route>
         <Route path="/addassistant" element={<AddAssistant />}></Route>
         <Route path="/edit-assistant/:id" element={<EditAssistant />} />

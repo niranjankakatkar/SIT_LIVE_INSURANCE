@@ -21,6 +21,7 @@ const EditProfile = () => {
 
   useEffect(() => {
     const tokenKey = sessionStorage.getItem("tokenKey");
+   
     if (tokenKey) {
       axios
         .get(`http://3.109.174.127:3005/getUserDetails?tokenKey=${tokenKey}`)
@@ -74,10 +75,15 @@ const EditProfile = () => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent form's default behavior
     const tokenKey = sessionStorage.getItem("tokenKey");
 
-    // Prepare profile data
+    if (!tokenKey) {
+      toast.error("Token key is missing!");
+      return;
+    }
+
     const profileData = {
       tokenKey,
       address: userDetails.address,
@@ -92,29 +98,14 @@ const EditProfile = () => {
       .post("http://3.109.174.127:3005/saveProfile", profileData)
       .then((response) => {
         if (response.data.status === "1") {
-          toast.success(response.data.message, {
-            position: "top-right",
-            autoClose: 3000,
-            theme: "colored",
-            transition: Slide,
-          });
+          toast.success(response.data.message);
         } else {
-          toast.error(response.data.message, {
-            position: "top-right",
-            autoClose: 3000,
-            theme: "colored",
-            transition: Slide,
-          });
+          toast.error(response.data.message);
         }
       })
       .catch((error) => {
         console.error("Error saving profile:", error);
-        toast.error("An error occurred while saving the profile", {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "colored",
-          transition: Slide,
-        });
+        toast.error("Failed to save profile");
       });
   };
 
@@ -134,7 +125,7 @@ const EditProfile = () => {
                   <ul className="breadcrumb">
                     <li className="breadcrumb-item">
                       <a href="index.html">
-                        Dashboard{sessionStorage.getItem("tokenKey")}{" "}
+                        Dashboard
                       </a>
                     </li>
                     <li className="breadcrumb-item">
@@ -197,6 +188,7 @@ const EditProfile = () => {
                               name="username"
                               value={userDetails.username}
                               onChange={handleChange}
+                              disabled
                             />
                           </div>
                         </div>

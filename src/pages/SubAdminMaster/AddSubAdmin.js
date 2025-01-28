@@ -2,24 +2,21 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../navBar";
-import { InputLabel } from "@mui/material";
 
-const AddLaboratory = () => {
+const SubAdminMaster = () => {
   const [formData, setFormData] = useState({
-    title: "",
+    name: "",
+    mname: "",
+    lname: "",
     country: "",
     state: "",
     city: "",
     pincode: "",
     address: "",
-    name: "",
     mobileno: "",
     email: "",
     username: "",
     password: "",
-    client_name: "",
-    client_email: "",
-    client_address: "",
   });
 
   const [message, setMessage] = useState("");
@@ -42,20 +39,18 @@ const AddLaboratory = () => {
 
   const validateForm = () => {
     const {
-      title,
+      name,
+      mname,
+      lname,
       country,
       state,
       city,
       pincode,
       address,
-      name,
       mobileno,
       email,
       username,
       password,
-      client_name,
-      client_email,
-      client_address,
     } = formData;
 
     const newErrors = {};
@@ -68,12 +63,16 @@ const AddLaboratory = () => {
       newErrors.name = "Name must contain only letters and spaces.";
     }
 
-    // Client Name validation (letters and spaces only)
-    if (!client_name) {
-      newErrors.client_name = "Client name is required!";
-    } else if (!nameRegex.test(client_name)) {
-      newErrors.client_name =
-        "Client name must contain only letters and spaces.";
+    if (!mname) {
+      newErrors.mname = "Middle Name is required!";
+    } else if (!nameRegex.test(mname)) {
+      newErrors.mname = "Middle Name must contain only letters and spaces.";
+    }
+
+    if (!lname) {
+      newErrors.lname = "Name is required!";
+    } else if (!nameRegex.test(lname)) {
+      newErrors.lname = "Name must contain only letters and spaces.";
     }
 
     // Mobile number validation
@@ -91,13 +90,6 @@ const AddLaboratory = () => {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    // Client email validation
-    if (!client_email) {
-      newErrors.client_email = "Client email is required!";
-    } else if (!emailRegex.test(client_email)) {
-      newErrors.client_email = "Please enter a valid client email address.";
-    }
-
     // Username and password validation
     if (!username) newErrors.username = "Username is required!";
     if (!password) newErrors.password = "Password is required!";
@@ -112,22 +104,6 @@ const AddLaboratory = () => {
     // Address validation
     if (!address) {
       newErrors.address = "Address is required!";
-    }
-
-    // Title validation (no special characters)
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-    if (!title) {
-      newErrors.title = "Title is required!";
-    } else if (specialCharRegex.test(title)) {
-      newErrors.title = "Title should not contain special characters.";
-    }
-
-    // Client address validation (no special characters)
-    if (!client_address) {
-      newErrors.client_address = "Client address is required!";
-    } else if (specialCharRegex.test(client_address)) {
-      newErrors.client_address =
-        "Client address should not contain special characters.";
     }
 
     // Country, State, City validation (required)
@@ -150,7 +126,7 @@ const AddLaboratory = () => {
     }
     try {
       const response = await axios.post(
-        "http://3.109.174.127:3005/addLaboratory",
+        "http://3.109.174.127:3005/addSubadmin",
         formData
       );
       setMessage(response.data);
@@ -160,7 +136,9 @@ const AddLaboratory = () => {
 
       // Reset the form after submission
       setFormData({
-        title: "",
+        name: "",
+        mname: "",
+        lname: "",
         country: "",
         state: "",
         city: "",
@@ -178,7 +156,7 @@ const AddLaboratory = () => {
 
       // Navigate to the Laboratory page after 2 seconds
       setTimeout(() => {
-        navigate("/laboratory");
+        navigate("/subadmin");
       }, 4000);
     } catch (err) {
       setMessage("");
@@ -190,7 +168,7 @@ const AddLaboratory = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    navigate("/laboratory");
+    navigate("/subadmin");
   };
 
   return (
@@ -207,7 +185,7 @@ const AddLaboratory = () => {
               paddingBottom: "10px",
             }}
           >
-            Add Diagnostic Centre
+            Add Subadmin
           </h2>
 
           <form
@@ -222,34 +200,22 @@ const AddLaboratory = () => {
             {/* Laboratory Details */}
             {[
               {
-                name: "title",
+                name: "name",
                 type: "text",
-                placeholder: "Title",
-                label: "Title",
+                placeholder: "First Name",
+                label: "First Name",
               },
               {
-                name: "country",
+                name: "mname",
                 type: "text",
-                placeholder: "Country",
-                label: "Country",
+                placeholder: "Middle name",
+                label: "Middle Name",
               },
               {
-                name: "state",
+                name: "lname",
                 type: "text",
-                placeholder: "State",
-                label: "State",
-              },
-              {
-                name: "city",
-                type: "text",
-                placeholder: "City",
-                label: "City",
-              },
-              {
-                name: "pincode",
-                type: "number",
-                placeholder: "Pincode",
-                label: "Pincode",
+                placeholder: "Last name",
+                label: "Last Name",
               },
               {
                 name: "address",
@@ -257,12 +223,7 @@ const AddLaboratory = () => {
                 placeholder: "Address",
                 label: "Address",
               },
-              {
-                name: "name",
-                type: "text",
-                placeholder: "Name",
-                label: "Name",
-              },
+
               {
                 name: "mobileno",
                 type: "number",
@@ -294,6 +255,11 @@ const AddLaboratory = () => {
                   flex:
                     field.name === "address"
                       ? "1 1 100%"
+                      : field.name === "mobileno" ||
+                        field.name === "email" ||
+                        field.name === "username" ||
+                        field.name === "password"
+                      ? "1 1 calc(25% - 20px)"
                       : "1 1 calc(33.33% - 20px)",
                   minWidth: field.name === "address" ? "100%" : "200px",
                   display: "flex",
@@ -344,55 +310,54 @@ const AddLaboratory = () => {
               </div>
             ))}
 
-            {/* Client Information Section */}
-            <h3 style={{ width: "100%", marginTop: "20px" }}>
-              Client Information
-            </h3>
-            {[
-              { name: "client_name", type: "text", placeholder: "Client Name", label: "Client Name" },
-              {
-                name: "client_email",
-                type: "email",
-                placeholder: "Client Email",
-                label: "Client Email",
-              },
-              {
-                name: "client_address",
-                type: "textarea",
-                placeholder: "Client Address",
-                label: "Client Address",
-              },
-            ].map((field) => (
-              <div
-                key={field.name}
-                style={{
-                  flex: "1 1 calc(33.33% - 20px)",
-                  minWidth: "200px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "5px",
-                }}
-              >
-                <label htmlFor={field.name} style={{ fontWeight: "bold" }}>
-                  {field.label}
-                </label>
-                {field.type === "textarea" ? (
-                  <textarea
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    value={formData[field.name]}
-                    onChange={handleChange}
-                    required
-                    style={{
-                      padding: "12px",
-                      border: "1px solid #ccc",
-                      borderRadius: "6px",
-                      resize: "none",
-                      fontSize: "14px",
-                      height: "80px",
-                    }}
-                  ></textarea>
-                ) : (
+            {/* Country, State, City, and Pincode in one row */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "20px",
+                width: "100%",
+              }}
+            >
+              {[
+                {
+                  name: "country",
+                  type: "text",
+                  placeholder: "Country",
+                  label: "Country",
+                },
+                {
+                  name: "state",
+                  type: "text",
+                  placeholder: "State",
+                  label: "State",
+                },
+                {
+                  name: "city",
+                  type: "text",
+                  placeholder: "City",
+                  label: "City",
+                },
+                {
+                  name: "pincode",
+                  type: "number",
+                  placeholder: "Pincode",
+                  label: "Pincode",
+                },
+              ].map((field) => (
+                <div
+                  key={field.name}
+                  style={{
+                    flex: "1 1 calc(25% - 20px)",
+                    minWidth: "200px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "5px",
+                  }}
+                >
+                  <label htmlFor={field.name} style={{ fontWeight: "bold" }}>
+                    {field.label}
+                  </label>
                   <input
                     type={field.type}
                     name={field.name}
@@ -407,17 +372,22 @@ const AddLaboratory = () => {
                       fontSize: "14px",
                     }}
                   />
-                )}
-                {errors[field.name] && (
-                  <span style={{ color: "red", fontSize: "12px" }}>
-                    {errors[field.name]}
-                  </span>
-                )}
-              </div>
-            ))}
+                  {errors[field.name] && (
+                    <span style={{ color: "red", fontSize: "12px" }}>
+                      {errors[field.name]}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
 
-            {/* Submit Button */}
-            <div>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               <button
                 type="submit"
                 style={{
@@ -430,7 +400,7 @@ const AddLaboratory = () => {
                   fontSize: "16px",
                 }}
               >
-                Add Diagnostic Centre
+                Add Subadmin
               </button>
             </div>
           </form>
@@ -458,19 +428,19 @@ const AddLaboratory = () => {
               padding: "30px",
               borderRadius: "8px",
               textAlign: "center",
-              maxWidth: "400px",
+              width: "300px",
             }}
           >
-            <h3>Diagnostic Centre Added Successfully!</h3>
+            <h3>Success</h3>
+            <p>{message}</p>
             <button
               onClick={handleCloseModal}
               style={{
-                marginTop: "20px",
                 padding: "10px 20px",
-                backgroundColor: "#4CAF50",
+                backgroundColor: "#2E37A4",
                 color: "white",
                 border: "none",
-                borderRadius: "5px",
+                borderRadius: "6px",
                 cursor: "pointer",
               }}
             >
@@ -483,4 +453,4 @@ const AddLaboratory = () => {
   );
 };
 
-export default AddLaboratory;
+export default SubAdminMaster;

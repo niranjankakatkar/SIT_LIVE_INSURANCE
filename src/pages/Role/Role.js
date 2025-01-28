@@ -605,7 +605,7 @@ function Role() {
           <Dialog open={showDeleteModal} onClose={cancelDelete}>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete this Assistant?
+              Are you sure you want to delete this Role?
             </DialogContent>
             <DialogActions>
               <Button onClick={cancelDelete} color="secondary">

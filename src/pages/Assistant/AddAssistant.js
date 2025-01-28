@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../navBar";
+import { Visibility, VisibilityOff } from "@mui/icons-material"; // Import icons for password visibility toggle
+import IconButton from "@mui/material/IconButton"; // Import IconButton from MUI
 
 const AddAssistant = () => {
   const [formData, setFormData] = useState({
@@ -10,11 +12,13 @@ const AddAssistant = () => {
     email: "",
     username: "",
     password: "",
+    pincode: "", // Added pincode field
   });
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   const navigate = useNavigate();
 
@@ -31,7 +35,7 @@ const AddAssistant = () => {
   };
 
   const validateForm = () => {
-    const { name, mobileno, email, username, password } = formData;
+    const { name, mobileno, email, username, password, pincode } = formData;
     const newErrors = {};
 
     // Name validation (letters and spaces only)
@@ -62,6 +66,13 @@ const AddAssistant = () => {
     if (!username) newErrors.username = "Username is required!";
     if (!password) newErrors.password = "Password is required!";
 
+    // Pincode validation
+    if (!pincode) {
+      newErrors.pincode = "Pincode is required!";
+    } else if (!/^[0-9]{6}$/.test(pincode)) {
+      newErrors.pincode = "Pincode must be 6 digits.";
+    }
+
     return newErrors;
   };
 
@@ -90,6 +101,7 @@ const AddAssistant = () => {
         email: "",
         username: "",
         password: "",
+        pincode: "", // Reset pincode field
       });
 
       setTimeout(() => {
@@ -104,6 +116,10 @@ const AddAssistant = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     navigate("/assistant");
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword((prev) => !prev); // Toggle password visibility
   };
 
   return (
@@ -139,11 +155,43 @@ const AddAssistant = () => {
             }}
           >
             {[
-              { name: "name", type: "text", placeholder: "Name" },
-              { name: "mobileno", type: "text", placeholder: "Mobile No." },
-              { name: "email", type: "email", placeholder: "Email" },
-              { name: "username", type: "text", placeholder: "Username" },
-              { name: "password", type: "password", placeholder: "Password" },
+              {
+                name: "name",
+                type: "text",
+                placeholder: "Name",
+                label: "Name",
+              },
+              {
+                name: "mobileno",
+                type: "text",
+                placeholder: "Mobile No.",
+                label: "Mobile No.",
+              },
+              {
+                name: "email",
+                type: "email",
+                placeholder: "Email",
+                label: "Email",
+              },
+              {
+                name: "pincode",
+                type: "text",
+                placeholder: "Pincode",
+                label: "Pincode",
+              },
+              {
+                name: "username",
+                type: "text",
+                placeholder: "Username",
+                label: "Username",
+              },
+              {
+                name: "password",
+                type: showPassword ? "text" : "password", // Toggle between text and password type
+                placeholder: "Password",
+                label: "Password",
+                icon: showPassword ? <VisibilityOff /> : <Visibility />, // Show the visibility icon
+              },
             ].map((field) => (
               <div
                 key={field.name}
@@ -155,6 +203,9 @@ const AddAssistant = () => {
                   gap: "5px",
                 }}
               >
+                <label style={{ fontSize: "14px", color: "#333", fontWeight: "bold" }}>
+                  {field.label}
+                </label>
                 <input
                   type={field.type}
                   name={field.name}
@@ -169,6 +220,14 @@ const AddAssistant = () => {
                     fontSize: "14px",
                   }}
                 />
+                {field.name === "password" && (
+                  <IconButton
+                    onClick={handleClickShowPassword}
+                    style={{ position: "absolute", right: "10px", top: "32px" }}
+                  >
+                    {field.icon}
+                  </IconButton>
+                )}
                 {errors[field.name] && (
                   <span style={{ color: "red", fontSize: "12px" }}>
                     {errors[field.name]}

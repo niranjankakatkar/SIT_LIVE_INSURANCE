@@ -1,7 +1,8 @@
-// Code by Prajwal Punekar
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { IconButton } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const EditAssistant = () => {
   const { id } = useParams();
@@ -10,18 +11,21 @@ const EditAssistant = () => {
     name: "",
     mobileno: "",
     email: "",
+    pincode: "", // Added pincode field
     username: "",
     password: "",
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   // Error state for each field
   const [fieldErrors, setFieldErrors] = useState({
     name: "",
     mobileno: "",
     email: "",
+    pincode: "", // Added error state for pincode
     username: "",
     password: "",
   });
@@ -40,6 +44,7 @@ const EditAssistant = () => {
             name: data.name,
             mobileno: data.mobileno,
             email: data.email,
+            pincode: data.pincode, // Set pincode
             username: data.username,
             password: data.password,
           });
@@ -65,7 +70,7 @@ const EditAssistant = () => {
   };
 
   const validateForm = () => {
-    const { name, mobileno, email, username, password } = formData;
+    const { name, mobileno, email, pincode, username, password } = formData;
     const newErrors = {};
 
     // Name validation (letters and spaces only)
@@ -90,6 +95,13 @@ const EditAssistant = () => {
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
     ) {
       newErrors.email = "Please enter a valid email address.";
+    }
+
+    // Pincode validation (only numeric and 6 digits)
+    if (!pincode) {
+      newErrors.pincode = "Pincode is required!";
+    } else if (!/^[0-9]{6}$/.test(pincode)) {
+      newErrors.pincode = "Pincode must be 6 digits.";
     }
 
     // Username and password validation
@@ -140,6 +152,10 @@ const EditAssistant = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     navigate("/assistant");
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -248,6 +264,31 @@ const EditAssistant = () => {
             </p>
           )}
 
+          {/* Pincode */}
+          <label style={{ fontWeight: "bold", marginBottom: "5px" }}>
+            Pincode:
+          </label>
+          <input
+            type="text"
+            name="pincode"
+            value={formData.pincode}
+            onChange={handleChange}
+            placeholder="Enter pincode"
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginBottom: "15px",
+              fontSize: "1rem",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+            }}
+          />
+          {fieldErrors.pincode && (
+            <p style={{ color: "red", fontSize: "0.9rem" }}>
+              {fieldErrors.pincode}
+            </p>
+          )}
+
           {/* Username */}
           <label style={{ fontWeight: "bold", marginBottom: "5px" }}>
             Username:
@@ -277,21 +318,34 @@ const EditAssistant = () => {
           <label style={{ fontWeight: "bold", marginBottom: "5px" }}>
             Password:
           </label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Enter password"
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "20px",
-              fontSize: "1rem",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-            }}
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter password"
+              style={{
+                width: "100%",
+                padding: "10px",
+                marginBottom: "20px",
+                fontSize: "1rem",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+              }}
+            />
+            <IconButton
+              onClick={togglePasswordVisibility}
+              style={{
+                position: "absolute",
+                top: "50%",
+                right: "10px",
+                transform: "translateY(-50%)",
+              }}
+            >
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          </div>
           {fieldErrors.password && (
             <p style={{ color: "red", fontSize: "0.9rem" }}>
               {fieldErrors.password}
@@ -308,60 +362,42 @@ const EditAssistant = () => {
               width: "100%",
               padding: "10px",
               fontSize: "1rem",
-              backgroundColor: "#2E37A4",
+              backgroundColor: "#4e73df",
               color: "#fff",
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
             }}
           >
-            Save Changes
+            Save
           </button>
         </form>
 
-        {/* Success Modal */}
-        {isModalOpen && (
+        {/* Success Message */}
+        {message && (
           <div
             style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 1000,
+              marginTop: "20px",
+              padding: "15px",
+              backgroundColor: "#d4edda",
+              color: "#155724",
+              borderRadius: "5px",
             }}
           >
-            <div
+            <p>{message}</p>
+            <button
+              onClick={closeModal}
               style={{
-                backgroundColor: "#fff",
-                padding: "30px",
-                borderRadius: "10px",
-                textAlign: "center",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                padding: "10px",
+                backgroundColor: "#155724",
+                color: "#fff",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
               }}
             >
-              <h3 style={{ marginBottom: "20px", color: "#4e73df" }}>
-                Assistant Updated Successfully!
-              </h3>
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: "8px 16px",
-                  fontSize: "1rem",
-                  backgroundColor: "#4e73df",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-              >
-                Close
-              </button>
-            </div>
+              Close
+            </button>
           </div>
         )}
       </div>

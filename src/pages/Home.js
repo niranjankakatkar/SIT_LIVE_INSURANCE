@@ -7,47 +7,44 @@ import Navbar from "./navBar";
 
 function Home() {
   const [appointments, setAppointments] = useState([]);
-  const [appointmentCount, setAppointmentCount] = useState(0); // State to store the appointment count
-  const [laboratoryCount, setLaboratoryCount] = useState(0); // State to store the appointment count
+  const [appointmentCount, setAppointmentCount] = useState(0);
+  const [laboratoryCount, setLaboratoryCount] = useState(0);
   const [assignedAppointmentCount, setAssignedAppointmentCount] = useState(0);
   const [unassignedAppointmentCount, setUnAssignedAppointmentCount] =
     useState(0);
 
-  // Fetch the latest 5 appointments on component mount
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
         const response = await axios.get(
-          "http://3.109.174.127:3005/gettodayappointment",
+          "http://3.109.174.127:3005/gettodayappointmentdashboard",
           { withCredentials: true }
         );
-        setAppointments(response.data); // Set the latest appointments in state
+        setAppointments(response.data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
     };
 
-    // Fetch the appointment count
     const fetchAppointmentCount = async () => {
       try {
         const response = await axios.get(
           "http://3.109.174.127:3005/getAppointmentCount",
           { withCredentials: true }
         );
-        setAppointmentCount(response.data); // Set the appointment count in state
+        setAppointmentCount(response.data);
       } catch (error) {
         console.error("Error fetching appointment count:", error);
       }
     };
 
-    // Fetch the appointment count
     const fetchLaboratoryCount = async () => {
       try {
         const response = await axios.get(
           "http://3.109.174.127:3005/getLaboratoriesCount",
           { withCredentials: true }
         );
-        setLaboratoryCount(response.data); // Set the appointment count in state
+        setLaboratoryCount(response.data);
       } catch (error) {
         console.error("Error fetching appointment count:", error);
       }
@@ -59,7 +56,7 @@ function Home() {
           "http://3.109.174.127:3005/getAssignedAppointmentCount",
           { withCredentials: true }
         );
-        setAssignedAppointmentCount(response.data); // Set the appointment count in state
+        setAssignedAppointmentCount(response.data);
       } catch (error) {
         console.error("Error fetching appointment count:", error);
       }
@@ -71,7 +68,7 @@ function Home() {
           "http://3.109.174.127:3005/getUnassignedAppointmentCount",
           { withCredentials: true }
         );
-        setUnAssignedAppointmentCount(response.data); // Set the appointment count in state
+        setUnAssignedAppointmentCount(response.data);
       } catch (error) {
         console.error("Error fetching appointment count:", error);
       }

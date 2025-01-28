@@ -10,8 +10,8 @@ function Login_auth() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Username:", username);
-    console.log("Password:", password);
+    // console.log("Username:", username);
+    // console.log("Password:", password);
 
     try {
       const result = await axios.post("http://3.109.174.127:3005/checkLogin", {
@@ -19,9 +19,11 @@ function Login_auth() {
         password,
       });
 
-      console.log(result.data); // Log the API response
+      // console.log(result.data); // Log the API response
 
       if (result.data.status === "1") {
+        // console.log("Token Key from API:", result.data.token_key); // Log token key from API
+
         sessionStorage.setItem("tokenKey", result.data.token_key); // Save token_key
         sessionStorage.setItem("userId", result.data.id);
         sessionStorage.setItem("post", result.data.post);
